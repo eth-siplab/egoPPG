@@ -1,0 +1,120 @@
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import ScalarFormatter, MaxNLocator
+import os
+import pickle
+
+
+class BaseTrainer:
+    @staticmethod
+    def add_trainer_args(parser):
+        """Adds arguments to Parser for training process"""
+        parser.add_argument('--lr', default=None, type=float)
+        parser.add_argument('--model_file_name', default=None, type=float)
+        return parser
+
+    def __init__(self):
+        pass
+
+    def train(self, data_loader):
+        pass
+
+    def valid(self, data_loader):
+        pass
+
+    def test(self, data_loader):
+        pass
+
+    @staticmethod
+    def get_model_path(config, model_dir, log_training_dir, cv_split, max_epoch_num, best_epoch):
+        if config.TOOLBOX_MODE == "only_test":
+            if config.INFERENCE.USE_BEST_EPOCH:
+                best_epochs_path = log_training_dir + f'/cv{cv_split}_best_epoch.npy'
+                used_epoch = int(np.load(best_epochs_path))
+                print("Testing uses best epoch selected during validation as pretrained model!")
+            else:
+                used_epoch = config.INFERENCE.MODEL_PATH.split(".")[0]
+                try:
+                    used_epoch = int(used_epoch[-2:])
+                except ValueError:
+                    used_epoch = int(used_epoch[-1:])
+                print("Testing uses model from specified epoch!")
+        else:
+            if config.TEST.USE_LAST_EPOCH:
+                used_epoch = max_epoch_num - 1
+                print("Testing uses last epoch as pretrained model!")
+            else:
+                used_epoch = best_epoch
+                print("Testing uses best epoch selected during validation as pretrained model!")
+
+        model_path = model_dir + f'/cv{cv_split}_Epoch{str(used_epoch)}.pth'
+        if not os.path.exists(model_path):
+            raise ValueError("Inference model path does not exist! Please check inference_model_path.")
+        print(f'Used epoch: {used_epoch}\n')
+        return model_path, used_epoch
+
+    def save_model(self, save_dir, model, cv_split, index):
+        torch.save(model.state_dict(), save_dir + f'/cv{cv_split}_Epoch{str(index)}.pth')
+
+    @staticmethod
+    def save_test_outputs(predictions, labels, config):
+        output_dir = config.TEST.OUTPUT_SAVE_DIR
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        data = {'predictions': predictions, 'labels': labels, 'label_type': config.TEST.DATA.PREPROCESS.LABEL_TYPE,
+                'fs': config.TEST.DATA.FS}
+        with open(output_dir + '/outputs.pickle', 'wb') as handle:  # save out frame dict pickle file
+            pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print('Saving outputs to:', output_dir + '/outputs.pickle')
+
+    @staticmethod
+    def plot_losses_and_lrs(train_loss, valid_loss, lrs, config, log_training_dir, cv_split):
+
+        # Filename ID to be used in plots that get saved
+        if not config.TOOLBOX_MODE == 'train_and_test':
+            raise ValueError('Metrics.py evaluation only supports train_and_test and only_test!')
+        
+        # Create a single plot for training and validation losses
+        plt.figure(figsize=(10, 6))
+        epochs = range(0, len(train_loss))  # Integer values for x-axis
+        plt.plot(epochs, train_loss, label='Training Loss')
+        if len(valid_loss) > 0:
+            plt.plot(epochs, valid_loss, label='Validation Loss')
+        else:
+            print("The list of validation losses is empty. The validation loss will not be plotted!")
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title(f'Losses')
+        plt.legend()
+        plt.xticks(epochs)
+
+        # Set y-axis ticks with more granularity
+        ax = plt.gca()
+        ax.yaxis.set_major_locator(MaxNLocator(integer=False, prune='both'))
+
+        loss_plot_filename = os.path.join(log_training_dir, f'cv{cv_split}_Losses.pdf')
+        plt.savefig(loss_plot_filename, dpi=300)
+        plt.close()
+
+        # Create a separate plot for learning rates
+        plt.figure(figsize=(6, 4))
+        scheduler_steps = range(0, len(lrs))
+        plt.plot(scheduler_steps, lrs, label='Learning Rate')
+        plt.xlabel('Scheduler Step')
+        plt.ylabel('Learning Rate')
+        plt.title(f'LR Schedule')
+        plt.legend()
+
+        # Set y-axis values in scientific notation
+        ax = plt.gca()
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True, useOffset=False))
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))  # Force scientific notation
+
+        lr_plot_filename = os.path.join(log_training_dir, f'cv{cv_split}_Learning_rates.pdf')
+        plt.savefig(lr_plot_filename, bbox_inches='tight', dpi=300)
+        plt.close()
+
+        print('Saving plots of losses and learning rates to:', log_training_dir)
+
+

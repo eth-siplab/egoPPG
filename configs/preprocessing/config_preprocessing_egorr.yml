@@ -1,0 +1,45 @@
+# Configurations for general of video and bio-signals of egoPPG dataset
+
+# General parameters
+original_data_path: '/local/home/bjbraun/Datasets/OriginalData/egoRR'
+preprocessed_data_path: '/local/home/bjbraun/Datasets/PreprocessedData/egoRR'
+
+fs_all: {'et': 30, 'rgb': 15, 'aria_imu_left': 800, 'aria_imu_right': 1000, 'ms_imu': 64, 'ms_ecg': 1024,
+         'biopac': 2000}
+tasks: ['video', 'office', 'dancing', 'bike', 'walking']
+
+# Preprocessing parameters for ML
+h: 48                       # Number of rows of the preprocessed frames
+w: 128                      # Number of columns of the preprocessed frames
+clip_length: 128
+
+# Cutting times for the tasks
+# Numbers are in frame numbers of the **eye-tracking** camera. Determined for 30 fps (multiply by 3 if fps is 10).
+
+task_times: {
+  '001': { 'video': [ 7350, 16700 ], 'office': [ 16700, 31000 ], 'walking_1': [ 31000, 33200 ],
+           'dancing': [ 33200, 43700 ], 'walking_2': [ 43700, 46800 ], 'bike': [ 46800, 54000 ],
+           'walking_3': [ 54000, 56300 ] , 'kitchen': [200000, 300000], 'running': [200000, 300000]},
+  '002': { 'video': [ 6700, 15350 ], 'office': [ 15350, 30300 ], 'walking_1': [ 30300, 33200 ],
+           'dancing': [ 33200, 42800 ], 'walking_2': [ 42800, 45100 ], 'bike': [ 45100, 52600 ],
+           'walking_3': [ 52600, 54400 ] , 'kitchen': [ 200000, 300000 ], 'running': [ 200000, 300000 ] },
+  '003': { 'video': [ 10500, 18700 ], 'office': [ 18700, 30500 ], 'walking_1': [ 30500, 32500 ],
+           'dancing': [ 32500, 40000 ], 'walking_2': [ 40000, 42200 ], 'bike': [ 42200, 49500 ],
+           'walking_3': [ 49500, 51800 ] , 'kitchen': [ 200000, 300000 ], 'running': [ 200000, 300000 ] },
+  '004': { 'video': [ 9000, 18100 ], 'office': [ 18100, 35000 ], 'walking_1': [ 35000, 37500 ],
+           'dancing': [ 37500, 47000 ], 'walking_2': [ 47000, 48600 ], 'bike': [ 48600, 55500 ],
+           'walking_3': [ 55500, 57500 ] , 'kitchen': [ 200000, 300000 ], 'running': [ 200000, 300000 ] },
+
+
+  '001_test': { 'video': [ 6016, 9400 ], 'office': [ 16900, 35650 ], 'walking_1': [ 35650, 38340 ],
+           'kitchen': [ 38340, 45815 ], 'walking_2': [ 45815, 47580 ], 'dancing': [ 47580, 56100 ],
+           'bike': [ 56100, 63370 ], 'walking_3': [ 63370, 65290 ], 'running': [ 65290, 9400 ]},
+}
+
+method_names: {'rr_peaks': 'RR Peaks', 'edr_peaks': 'EDR Peaks', 'imu_peaks': 'IMU Peaks', 'pa': 'Personal Average',
+              'rrr_peaks': 'RRR Peaks'}
+
+crop_coords:
+  {
+    '001': [ 10, 50, 100, 540 ], '002': [ 200, 240, 0, 640 ], '003': [ 200, 240, 0, 640 ], '004': [ 0, 50, 100, 540 ],
+  }

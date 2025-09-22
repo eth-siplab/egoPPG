@@ -1,0 +1,69 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+INPUT_SIGNALS: ['et']  # face, hand: can be one or multiple depending on model
+LABEL_SIGNALS: ["ppg_nose"]  # ppg_nose, ppg_ear, sys, dia, hr: can be one or multiple depending on model
+INPUT_SIGNALS_TEST: ['et']  # face, hand: can be one or multiple depending on model
+LABEL_SIGNALS_TEST: ["ppg"]  # ppg_nose, ppg_ear, sys, dia, hr: can be one or multiple depending on model
+TASKS_TO_USE: []
+LABEL_VALID: 0  # index of which label of LABEL_SIGNALS to use for validation
+NAME_EXTENSION: ""  # optional, just to add some extra information to the name AUG_H2, FREQ_LOSS
+SPLIT_METHOD: "kfold"  # loso or kfold
+K_FOLD_SPLITS: 5  # if k_fold is used, specify number of splits for k_fold
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+
+TRAIN:
+  BATCH_SIZE: 4  # how many files per batch to load!
+  EPOCHS: 30
+  LR: 9e-4  # 9e-3
+  PLOT_LOSSES_AND_LR: True
+  DATA:
+    FS: 30
+    DATASET: egoppg  # egoppg
+    DATA_FORMAT: NCDHW
+    CACHED_PATH: "/Datasets/PreprocessedData/egoPPG/Data_ML"  # where the preprocessed data is saved, relative to the DATA_PATH
+    PREPROCESS:
+      DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
+      LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized
+      CHUNK_LENGTH_OLD: 128
+      CHUNK_LENGTH: 128
+      DOWNSAMPLE: 1
+      UPSAMPLE: 1
+      RESIZE:
+        H: 48
+        W: 128
+
+TEST:
+  USE_LAST_EPOCH: False                     # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 30
+    DATASET: ubfc_rppg  # egoppg
+    DATA_FORMAT: NCDHW
+    CACHED_PATH: "/Datasets/PreprocessedData/UBFC_rPPG/DATASET_2/Data_ML"  # where the preprocessed data is saved, relative to the DATA_PATH
+    PREPROCESS:
+      DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
+      LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized
+      CHUNK_LENGTH_OLD: 128
+      CHUNK_LENGTH: 128
+      DOWNSAMPLE: 1
+      UPSAMPLE: 1
+      RESIZE:
+        H: 48
+        W: 128
+
+DATA_PATH: "/local/home/bjbraun"  # where the big data is saved (DATA_PATH and FILE_PATH could be the same depending on server)
+FILE_PATH: "/local/home/bjbraun"  # folder for smaller files of the projects
+LOG:
+  PATH_TRAINING: "/Projects/egoPPG/runs/training"  # where the training logs are saved, relative to the FILE_PATH
+  PATH_TESTING: "/Projects/egoPPG/runs/testing"    # where the testing logs are saved, relative to the FILE_PATH
+MODEL:
+  NAME: PhysNetNew
+  PATH_MODEL: '/Projects/egoPPG/PreTrainedModels'  # where the pre-trained models are saved, relative to the DATA_PATH
+INFERENCE:
+  USE_BEST_EPOCH: True
+  BATCH_SIZE: 4
+  EVALUATION_METHOD: "Peak_Detection"        # "FFT" or "Peak_Detection" (for rPPG)
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: True     # Change this if you'd like an evaluation window smaller than the test video length
+    WINDOW_SIZE: 60               # In seconds
+  MODEL_PATH: "Epoch99.pth"  # TRAIN needs to be adjusted to where model was trained from which is inferred

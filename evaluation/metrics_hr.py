@@ -2,13 +2,11 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from tqdm import tqdm
 
+from tqdm import tqdm
 from scipy.stats import pearsonr
 
-from source.evaluation.BlandAltmanPy import BlandAltman
-from source.evaluation.post_process import calculate_metric_per_video_ppg
-from source.utils import get_task_chunk_list, resample_signal
+from utils import get_task_chunk_list
 
 
 def _reform_data_from_dict(data, flatten=True):
@@ -147,23 +145,3 @@ def calculate_metrics_hr(predictions, labels, config, evaluation_file_path, used
                         f"{round(result, 2)} +/- {round(standard_error, 2)}")
 
     return metrics_out
-
-
-# ToDo: Implement Bland-Altman for PPG
-"""if "AU" in metric:
-    pass
-elif "BA" in metric:
-    filename_id = 'TEST'
-    compare = BlandAltman(gt_hr_all, predict_hr_all, config, averaged=True)
-    compare.scatter_plot(
-        x_label='GT PPG HR [bpm]',
-        y_label='rPPG HR [bpm]',
-        show_legend=True, figure_size=(5, 5),
-        the_title=f'{filename_id}_FFT_BlandAltman_ScatterPlot',
-        file_name=f'{filename_id}_FFT_BlandAltman_ScatterPlot.pdf')
-    compare.difference_plot(
-        x_label='Difference between rPPG HR and GT PPG HR [bpm]',
-        y_label='Average of rPPG HR and GT PPG HR [bpm]',
-        show_legend=True, figure_size=(5, 5),
-        the_title=f'{filename_id}_FFT_BlandAltman_DifferencePlot',
-        file_name=f'{filename_id}_FFT_BlandAltman_DifferencePlot.pdf')"""

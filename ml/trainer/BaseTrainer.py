@@ -6,10 +6,8 @@ import pickle
 
 from matplotlib.ticker import ScalarFormatter, MaxNLocator
 
-from source.evaluation.metrics_bp import calculate_metrics_bp
-from source.evaluation.metrics_eda import calculate_metrics_eda
-from source.evaluation.metrics_hr import calculate_metrics_hr
-from source.evaluation.metrics_ppg_rr import calculate_metrics_ppg_rr
+from evaluation.metrics_hr import calculate_metrics_hr
+from evaluation.metrics_ppg import calculate_metrics_ppg
 
 
 class BaseTrainer:
@@ -66,26 +64,14 @@ class BaseTrainer:
         results = {label_signal: None for label_signal in config.LABEL_SIGNALS}
         evaluation_file_path = log_testing_dir + f'/cv{cv_split}_Evaluation.txt'
         for i_label, label_signal in enumerate(config.LABEL_SIGNALS):
-            if label_signal in ['ppg_finger', 'ppg_ear', 'ppg_nose', 'sineppg', 'ppg']:
-                results[label_signal] = calculate_metrics_ppg_rr(predictions[label_signal], labels[label_signal],
+            if label_signal in ['ppg_nose']:
+                results[label_signal] = calculate_metrics_ppg(predictions[label_signal], labels[label_signal],
                                                                  config, 'ppg', evaluation_file_path, used_epoch,
                                                                  test_metrics[label_signal], i_label)
-            elif label_signal in ['rr', 'classrr']:
-                results[label_signal] = calculate_metrics_ppg_rr(predictions[label_signal], labels[label_signal],
-                                                                 config, 'rr', evaluation_file_path, used_epoch,
-                                                                 test_metrics[label_signal], i_label)
-            elif label_signal in ['hr', 'classhr']:
+            elif label_signal in ['classhr']:
                 results[label_signal] = calculate_metrics_hr(predictions[label_signal], labels[label_signal], config,
                                                              evaluation_file_path, used_epoch,
                                                              test_metrics[label_signal], i_label)
-            elif label_signal in ['sys', 'dia']:
-                results[label_signal] = calculate_metrics_bp(predictions[label_signal], labels[label_signal], config,
-                                                             evaluation_file_path, used_epoch, fig_all, spec_all,
-                                                             test_metrics[label_signal], i_label)
-            elif label_signal in ['eda_raw', 'eda_filtered', 'eda_tonic']:
-                results[label_signal] = calculate_metrics_eda(predictions[label_signal], labels[label_signal], config,
-                                                              evaluation_file_path, used_epoch,
-                                                              test_metrics[label_signal], fig_all, spec_all, i_label)
             else:
                 raise ValueError("Label signal error! Please check label signal.")
         return results

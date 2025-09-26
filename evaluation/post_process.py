@@ -3,19 +3,12 @@ The file also  includes helper funcs such as detrend, mag2db etc.
 """
 
 import matplotlib.pyplot as plt
-import neurokit2 as nk
 import numpy as np
-import scipy
-import scipy.io
-import statsmodels.api as sm
 
-from scipy import stats
-from scipy.signal import butter, detrend, find_peaks, filtfilt, periodogram, firwin
-from scipy.sparse import spdiags
+from scipy.signal import butter, detrend, find_peaks, filtfilt, periodogram
 from sklearn.metrics import mean_squared_error
 
-from source.sp.sp_helper import calculate_peak_hr, calculate_ibis
-from source.utils import normalize
+from utils import normalize, calculate_ibis
 
 
 def _next_power_of_2(x):
@@ -42,14 +35,7 @@ def _calculate_fft_hr_rr(ppg_signal, fs=30, low_pass=0.75, high_pass=2.5):
 
 def _calculate_peak_hr(ppg_signal, fs, show_plots=False):
     """Calculate heart rate based on PPG using peak detection."""
-    ppg_peaks, _ = find_peaks(ppg_signal) # , distance=60/180*fs)
-
-    """ppg_signal = ppg_signal - min(ppg_signal)
-    ppg_signal = ppg_signal / max(ppg_signal)
-
-    signals_sys, info_sys = nk.ppg_peaks(ppg_signal, sampling_rate=fs, method="elgendi", show=False)
-    ppg_peaks = info_sys["PPG_Peaks"]"""
-
+    ppg_peaks, _ = find_peaks(ppg_signal)
     hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
 
     if show_plots:
@@ -61,32 +47,8 @@ def _calculate_peak_hr(ppg_signal, fs, show_plots=False):
 
     ibis = calculate_ibis(ppg_peaks, fs, 1.5, reject_outliers=True)
     hrv_sdnn = np.std(ibis)
-    # hrv_sdnn = 0
-    # hr_peak = 60 / (np.mean(ibis) / fs)
-
-    # hr_peak = calculate_peak_hr(ppg_signal, fs)
 
     return hr_peak, hrv_sdnn
-
-
-def _calculate_peak_rr(ppg_signal, fs, show_plots=False):
-    """Calculate heart rate based on PPG using peak detection."""
-    ppg_peaks, _ = find_peaks(ppg_signal)
-    hr_peak = 60 / (np.mean(np.diff(ppg_peaks)) / fs)
-
-    if show_plots:
-        fig, ax = plt.subplots()
-        ax.plot(ppg_signal)
-        y_peaks = np.asarray([ppg_signal[i] for i in ppg_peaks])
-        ax.scatter(ppg_peaks, y_peaks, color='green')
-        fig.show()
-
-    # ibis = calculate_ibis(ppg_peaks, fs, reject_outliers=True)
-    # hr_peak = 60 / (np.mean(ibis) / fs)
-
-    # hr_peak = calculate_peak_hr(ppg_signal, fs)
-
-    return hr_peak
 
 
 def _calculate_SNR(pred_ppg_signal, hr_label, fs=30, low_pass=0.75, high_pass=2.5):
@@ -161,14 +123,9 @@ def calculate_metric_per_video_ppg(predictions, labels, hr_method, diff_flag, fs
             ax.plot(normalize(labels, 'zero_one'), label='Ground Truth')
             fig.show()
 
-        [b, a] = butter(4, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')  # 0.7, 3.00
+        [b, a] = butter(4, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')  # 0.7, 2.8
         predictions = filtfilt(b, a, np.double(predictions))
         labels = filtfilt(b, a, np.double(labels))
-
-        """ntaps = 128
-        taps = bandpass_firwin(ntaps, low_pass, high_pass, fs=fs)
-        predictions = scipy.signal.filtfilt(taps, 1.0, predictions)
-        labels = scipy.signal.filtfilt(taps, 1.0, labels)"""
 
         if show_plots:
             fig, ax = plt.subplots()
@@ -189,116 +146,3 @@ def calculate_metric_per_video_ppg(predictions, labels, hr_method, diff_flag, fs
     SNR = _calculate_SNR(predictions, hr_label, fs=fs)
 
     return hr_label, hr_pred, SNR, mse, hrv_pred
-
-
-def bandpass_firwin(ntaps, lowcut, highcut, fs, window='hamming'):
-    taps = firwin(ntaps, [lowcut, highcut], fs=fs, pass_zero=False,
-                  window=window, scale=False)
-    return taps
-
-
-def calculate_metric_per_video_rr(predictions, labels, hr_method, diff_flag, fs, use_bandpass=True):
-    """Calculate video-level HR and SNR"""
-    mse = mean_squared_error(normalize(detrend(np.cumsum(labels)), 'zero_one'),
-                             normalize(detrend(np.cumsum(predictions)), 'zero_one'))
-    if diff_flag:  # if the predictions and labels are 1st derivative of PPG signal.
-        predictions = detrend(np.cumsum(predictions))
-        labels = detrend(np.cumsum(labels))
-    else:
-        predictions = detrend(predictions)
-        labels = detrend(labels)
-
-    # Invert signal
-    predictions = np.max(predictions) - predictions
-    labels = np.max(labels) - labels
-
-    show_plots = False
-    low_pass, high_pass = 0.15, 0.6
-    if use_bandpass:
-        # bandpass filter between [0.6, 3.00] Hz/ [45, 150] beats per min
-        if show_plots:
-            fig, ax = plt.subplots()
-            ax.plot(normalize(predictions, 'zero_one'), label='Prediction')
-            ax.plot(normalize(labels, 'zero_one'), label='Ground Truth')
-            fig.show()
-
-        [b, a] = butter(4, [low_pass / fs * 2, high_pass / fs * 2], btype='bandpass')  # 0.7, 3.00
-        predictions = filtfilt(b, a, np.double(predictions))
-        labels = filtfilt(b, a, np.double(labels))
-
-        if show_plots:
-            fig, ax = plt.subplots()
-            ax.plot(normalize(predictions, 'zero_one'), label='Prediction')
-            ax.plot(normalize(labels, 'zero_one'), label='Ground Truth')
-            fig.show()
-
-    if hr_method == 'FFT':
-        hr_pred = _calculate_fft_hr_rr(predictions, fs=fs, low_pass=low_pass, high_pass=high_pass)
-        hr_label = _calculate_fft_hr_rr(labels, fs=fs, low_pass=low_pass, high_pass=high_pass)
-    elif hr_method == 'Peak_Detection':
-        hr_pred = _calculate_peak_rr(predictions, fs=fs, show_plots=show_plots)
-        hr_label = _calculate_peak_rr(labels, fs=fs, show_plots=False)
-    else:
-        raise ValueError('Please use FFT or Peak to calculate your HR.')
-
-    SNR = _calculate_SNR(predictions, hr_label, fs=fs)
-
-    return hr_label, hr_pred, SNR, mse
-
-
-def calculate_metric_per_video_bp(predictions, labels, config, do_norm=False, fs=100, diff_flag=True,
-                                  use_highpass=True):
-    # If the predictions and labels are 1st derivative of the ground truth signal
-    if diff_flag:
-        predictions = np.cumsum(predictions)
-        labels = np.cumsum(labels)
-    if use_highpass:
-        [b, a] = butter(4, 0.005 / fs * 2, btype='highpass')
-        predictions = filtfilt(b, a, np.double(predictions))
-        labels = filtfilt(b, a, np.double(labels))
-
-    MAE = np.mean(np.abs(predictions - labels))
-
-    # Normalize the predictions and labels
-    if do_norm:
-        predictions = normalize(predictions, 'zero_one')
-        labels = normalize(labels, 'zero_one')
-
-    # Calculate Spearman correlation with cross-correlation
-    cross_correlation_time = int(20 * config.TEST.DATA.FS)  # fs already adjusted to downsampled fs
-    corr = sm.tsa.stattools.ccf(labels, predictions, adjusted=False)
-    if np.argmax(corr[:cross_correlation_time]) > 0:
-        predictions = predictions[:-np.argmax(corr[:cross_correlation_time])]
-        labels = labels[np.argmax(corr[:cross_correlation_time]):]
-
-    spearman = stats.spearmanr(predictions, labels)
-
-    return spearman[0], MAE, predictions, labels
-
-
-def calculate_metric_per_video_eda(predictions, labels, config, fs=100, diff_flag=True):
-    # If the predictions and labels are 1st derivative of the ground truth signal
-    if diff_flag:
-        predictions = np.cumsum(predictions)
-        labels = np.cumsum(labels)
-
-    # Filter signals
-    [b, a] = butter(2, 0.005 / fs * 2, btype='highpass')
-    # [b, a] = butter(2, [0.003 / fs * 2, 0.05 / fs * 2], btype='bandpass')
-    predictions = scipy.signal.filtfilt(b, a, np.double(predictions))
-    labels = scipy.signal.filtfilt(b, a, np.double(labels))
-
-    predictions = normalize(np.double(predictions), 'zero_one')
-    labels = normalize(np.double(labels), 'zero_one')
-
-    cross_correlation_time = int(20 * config.TEST.DATA.FS)  # fs already adjusted to downsampled fs
-    corr = sm.tsa.stattools.ccf(labels, predictions, adjusted=False)
-    if np.argmax(corr[:cross_correlation_time]) > 0:
-        predictions = predictions[:-np.argmax(corr[:cross_correlation_time])]
-        labels = labels[np.argmax(corr[:cross_correlation_time]):]
-
-    spearman = stats.spearmanr(predictions, labels)
-    pearson = stats.pearsonr(predictions, labels)
-    MAE = np.mean(np.abs(predictions - labels))
-
-    return spearman[0], pearson[0], MAE, predictions, labels

@@ -1,8 +1,8 @@
 # Configurations for general of video and bio-signals of egoPPG dataset
 
 # General parameters
-original_data_path: '/local/home/bjbraun/Datasets/OriginalData/EgoExo4D_full'
-preprocessed_data_path: '/local/home/bjbraun/Datasets/PreprocessedData/EgoExo4D'
+original_data_path: '/data/bjbraun/Datasets/OriginalData'
+preprocessed_data_path: '/data/bjbraun/Datasets/PreprocessedData/EgoExo4D'
 fs_all: {'et': 10, 'rgb': 30, 'aria_imu_left': 800, 'aria_imu_right': 1000}
 
 # Preprocessing parameters for ML

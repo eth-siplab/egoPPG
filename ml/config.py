@@ -58,7 +58,6 @@ _C.TRAIN.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.TRAIN.DATA.PREPROCESS.DOWNSAMPLE = 1
 _C.TRAIN.DATA.PREPROCESS.UPSAMPLE = 1
 _C.TRAIN.DATA.PREPROCESS.DO_CHUNK = True
-_C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH_OLD = None
 _C.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH = None
 _C.TRAIN.DATA.PREPROCESS.DETECTION_LENGTH = None
 _C.TRAIN.DATA.PREPROCESS.RESIZE = CN()
@@ -88,7 +87,6 @@ _C.TEST.DATA.PREPROCESS = CN()
 _C.TEST.DATA.PREPROCESS.DATA_TYPE = ['']
 _C.TEST.DATA.PREPROCESS.LABEL_TYPE = ''
 _C.TEST.DATA.PREPROCESS.DO_CHUNK = True
-_C.TEST.DATA.PREPROCESS.CHUNK_LENGTH_OLD = None
 _C.TEST.DATA.PREPROCESS.CHUNK_LENGTH = None
 _C.TEST.DATA.PREPROCESS.DOWNSAMPLE = 1
 _C.TEST.DATA.PREPROCESS.UPSAMPLE = 1
@@ -172,6 +170,7 @@ _C.NUM_OF_GPU_TRAIN = 1
 _C.LOG = CN()
 _C.LOG.PATH_TRAINING = None
 _C.LOG.PATH_TESTING = None
+_C.LOG.PATH_PREDS = ""
 
 # -----------------------------------------------------------------------------
 # Path settings
@@ -211,7 +210,7 @@ def get_config(args):
         raise ValueError("Validation label not in label signals!")
 
     # Define preprocessing configuration of training dataset
-    config_preprocessing_train = f'CL{config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH_OLD}_' \
+    config_preprocessing_train = f'CL{config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH}_' \
                                  f'W{config.TRAIN.DATA.PREPROCESS.RESIZE.W}_' \
                                  f'H{config.TRAIN.DATA.PREPROCESS.RESIZE.H}_' \
                                  f'LabelRaw_VideoTypeRaw'
@@ -229,7 +228,7 @@ def get_config(args):
         config_preprocessing_extended_train += f'_Up{config.TRAIN.DATA.PREPROCESS.UPSAMPLE}'
 
     # Define preprocessing configuration of testing dataset
-    config_preprocessing_test = f'CL{config.TEST.DATA.PREPROCESS.CHUNK_LENGTH_OLD}_' \
+    config_preprocessing_test = f'CL{config.TEST.DATA.PREPROCESS.CHUNK_LENGTH}_' \
                                 f'W{config.TEST.DATA.PREPROCESS.RESIZE.W}_' \
                                 f'H{config.TEST.DATA.PREPROCESS.RESIZE.H}_' \
                                 f'LabelRaw_VideoTypeRaw'
@@ -265,6 +264,7 @@ def get_config(args):
                                (f'/{config.TEST.DATA.DATASET}/inputs_{"_".join(config.INPUT_SIGNALS)}'
                                 f'/labels_{"_".join(config.LABEL_SIGNALS)}/{config_preprocessing_extended_test}/'
                                 f'{config.MODEL.NAME}{config.NAME_EXTENSION}'))
+    config.LOG.PATH_PREDS = config.FILE_PATH + config.LOG.PATH_PREDS
 
     # Adjust the data sampling frequency to the downsampling
     config.TRAIN.DATA.FS = int(config.TRAIN.DATA.FS / config.TRAIN.DATA.PREPROCESS.DOWNSAMPLE)

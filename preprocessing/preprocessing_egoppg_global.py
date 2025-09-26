@@ -17,56 +17,61 @@ from multiprocessing import Pool
 
 
 def preprocess_videos(configs, participant, save_path):
-    # Load frames
+    # Load frames and resize to specified size
     frames = np.load(configs['original_data_path'] + f'/{participant}/{participant}_et.npy')
     frames = [cv2.resize(frames[i], (configs['w'], configs['h']), interpolation=cv2.INTER_AREA) for i in
               range(len(frames))]
     N_chunks = len(frames) // configs['clip_length']
     frames = np.expand_dims(np.asarray(frames), axis=3)
-    frames = frames[:N_chunks * configs['clip_length'], :, :, :]  # remove first frames until first full chunk
+    frames = frames[:N_chunks * configs['clip_length'], :, :, :]  # remove extra frames that do not fit into a chunk
 
+    # Ensure that only frames within all tasks are used and exclude, e.g., frames after the study protocol
+    # task_times = get_adjusted_task_times(configs['task_times'][participant])
+    # frames = frames[task_times['video'][0]:task_times['walking_3'][1], :, :, :]
+
+    # Normalize/standardize frames over entire video of one participant
+    frames_processed = list()
+    for video_type in configs['video_types']:
+        f_c = frames.copy()
+        if video_type == "Raw":
+            frames_processed.append(np.asarray(f_c[:, :, :, :], dtype=np.float32))
+        elif video_type == "Diff":
+            frames_processed.append(diff_video(np.asarray(f_c, dtype=np.float32)))
+        elif video_type == "DiffStandardized":
+            frames_processed.append(diff_standardize_video(np.asarray(f_c, dtype=np.float32)))
+        elif video_type == "DiffStandardizedExtended":
+            frames_processed.append(diff_standardize_extended_video(np.asarray(f_c, dtype=np.float32)))
+        elif video_type == "Standardized":
+            frames_processed.append(standardize_video(np.asarray(f_c, dtype=np.float32)))
+        else:
+            os.rmdir(save_path)
+            raise ValueError("Unsupported data type!")
+    frames_processed = np.concatenate(frames_processed, axis=3)
+
+    # Chunk and save data. Chunking is done using task times to enable clean evaluation per task later on.
     task_times = get_adjusted_task_times(configs['task_times'][participant])
     chunk_idx = 0
     for task in task_times.keys():
-        frames_task = frames[task_times[task][0]:task_times[task][1]]
+        frames_task = frames_processed[task_times[task][0]:task_times[task][1]]
         frames_task = frames_task[0::configs['downsampling']]  # downsample frames if specified
 
         # Interpolate between frames if upsampling is used
         if configs['upsampling'] > 1:
             frames_task = upsample_video(frames_task, configs['upsampling'], 'linear')
 
-        # Normalize/standardize frames
-        frames_processed = list()
-        for video_type in configs['video_types']:
-            f_c = frames_task.copy()
-            if video_type == "Raw":
-                frames_processed.append(np.asarray(f_c[:, :, :, :], dtype=np.float32))
-            elif video_type == "Diff":
-                frames_processed.append(diff_video(np.asarray(f_c, dtype=np.float32)))
-            elif video_type == "DiffStandardized":
-                frames_processed.append(diff_standardize_video(np.asarray(f_c, dtype=np.float32)))
-            elif video_type == "DiffStandardizedExtended":
-                frames_processed.append(diff_standardize_extended_video(np.asarray(f_c, dtype=np.float32)))
-            elif video_type == "Standardized":
-                frames_processed.append(standardize_video(np.asarray(f_c, dtype=np.float32)))
-            else:
-                os.rmdir(save_path)
-                raise ValueError("Unsupported data type!")
-        frames_processed = np.concatenate(frames_processed, axis=3)
-
         # Show first preprocessed image for validation
         if task == 'video':
             fig, ax = plt.subplots()
-            ax.imshow(frames_processed[0, :, :, :1])
+            ax.imshow(frames_task[0, :, :, :1])
             ax.set_title(f'Participant {participant}')
             fig.show()
-            if frames_processed.shape[3] > 1:
+            if frames_task.shape[3] > 1:
                 fig, ax = plt.subplots()
-                ax.imshow(frames_processed[0, :, :, 1:])
+                ax.imshow(frames_task[0, :, :, 1:])
                 fig.show()
 
         # Chunk and save frames
-        frame_chunks = chunk_data(frames_processed, configs['clip_length'])
+        frame_chunks = chunk_data(frames_task, configs['clip_length'])
         frame_chunks = np.transpose(frame_chunks, (0, 4, 1, 2, 3))   # save as (N, C, D, W, H) for PyTorch
         save_chunks(frame_chunks, save_path + f'/{participant}_input_et', chunk_idx)
         chunk_idx += len(frame_chunks)
@@ -76,13 +81,36 @@ def preprocess_timeseries(configs, participant, save_path):
     task_times = get_adjusted_task_times(configs['task_times'][participant])
     for signal in ['ppg_nose', 'imu_right']:
         data_all = np.load(configs['original_data_path'] + f'/{participant}/{participant}_{signal}.npy')
+
+        # Filter PPG signal to filter out any motion artifacts or low-frequent component
+        if signal == 'ppg_nose':
+            data_all = nk.ppg_clean(data_all, sampling_rate=configs['fs_all']['et'], method='elgendi')
+
+        # Extend 1 dim if only 1 dim
+        if len(data_all.shape) == 1:
+            data_all = np.expand_dims(data_all, axis=1)
+
+        # Ensure that only data within all tasks are used and exclude, e.g., data after the study protocol
+        # data_all = data_all[task_times['video'][0]:task_times['walking_3'][1], :]
+
+        # Normalize/standardize data over entire data of one participant
+        for i in range(data_all.shape[1]):
+            if configs["label_type"] == "Raw":
+                data_all[:, i] = data_all[:, i]
+            elif configs["label_type"] == "Diff":
+                data_all[:, i] = diff_label(data_all[:, i])
+            elif configs["label_type"] == "DiffStandardized":
+                data_all[:, i] = diff_standardize_label(data_all[:, i])
+            elif configs["label_type"] == "Standardized":
+                data_all[:, i] = standardize_label(data_all[:, i])
+            else:
+                os.rmdir(save_path)
+                raise ValueError("Unsupported label type for EDA!")
+
+        # Chunk and save data. Chunking is done using task times to enable clean evaluation per task later on.
         chunk_idx = 0
         for task in task_times.keys():
             data = data_all[task_times[task][0]:task_times[task][1]]
-
-            # Filter PPG signal to filter out any motion artifacts or low-frequent component
-            if signal == 'ppg_nose':
-                data = nk.ppg_clean(data, sampling_rate=configs['fs_all']['et'], method='elgendi')
 
             # Downsample signal
             data = data[0::configs['downsampling']]
@@ -91,26 +119,7 @@ def preprocess_timeseries(configs, participant, save_path):
             if configs['upsampling'] > 1:
                 data = resample_signal(data, data.shape[0] * configs['upsampling'] - 2, 'linear')
 
-            # Preprocess biosignals
-            data_orig = data.copy()
-
-            # Extend 1 dim if only 1 dim
-            if len(data.shape) == 1:
-                data = np.expand_dims(data, axis=1)
-
-            for i in range(data.shape[1]):
-                if configs["label_type"] == "Raw":
-                    data[:, i] = data[:, i]
-                elif configs["label_type"] == "Diff":
-                    data[:, i] = diff_label(data[:, i])
-                elif configs["label_type"] == "DiffStandardized":
-                    data[:, i] = diff_standardize_label(data[:, i])
-                elif configs["label_type"] == "Standardized":
-                    data[:, i] = standardize_label(data[:, i])
-                else:
-                    os.rmdir(save_path)
-                    raise ValueError("Unsupported label type for EDA!")
-
+            # Calculate magnitude of IMU signal and squeeze PPG signal to have shape (N,)
             if signal == 'imu_right':
                 data = np.sqrt(np.sum(np.square(np.vstack((data[:, 0], data[:, 1], data[:, 2]))), axis=0))
             else:
@@ -126,43 +135,9 @@ def preprocess_timeseries(configs, participant, save_path):
             else:
                 raise ValueError("Unsupported signal!")
 
-            # Calculate and save HR in bpm as class label (40-180 bpm) to directly predict HR class
-            if signal == 'ppg_nose':
-                data_orig = np.max(data_orig) - data_orig
-                sp_chunk_len = 60 * configs['fs_all']['et']  # Number of samples in 60 seconds
-                peaks_all = []
-                if len(data_orig) <= sp_chunk_len:
-                    peaks_all.extend(calculate_peaks(data_orig, configs['fs_all']['et']))
-                else:
-                    for i_chunk in range(0, len(data_orig)+1 - sp_chunk_len, sp_chunk_len):
-                        if i_chunk > len(data_orig) - 2 * sp_chunk_len:
-                            if (len(data_orig) % sp_chunk_len) == 0:
-                                end = i_chunk + sp_chunk_len
-                            else:
-                                end = len(data_orig)
-                        else:
-                            end = i_chunk + sp_chunk_len
-                        window_data = data_orig[i_chunk:end]
-                        peaks_temp = calculate_peaks(window_data, configs['fs_all']['et'])
-                        peaks_all.extend([peak + i_chunk for peak in peaks_temp])
-                peaks_all = np.asarray(peaks_all)
-                mapped_hrs_chunks = list()
-                n_wins = len(data_orig) // configs['clip_length']
-                for i_chunk in range(n_wins):
-                    start = i_chunk * configs['clip_length']
-                    end = start + configs['clip_length']
-                    peaks_in_clip = peaks_all[(peaks_all >= start) & (peaks_all < end)]
-                    hr_chunk = 60 / (np.mean(np.diff(peaks_in_clip)) / configs['fs_all']['et'])
-                    mapped_hr = int(round(hr_chunk))
-                    if mapped_hr < 40:
-                        mapped_hr = 40
-                    elif mapped_hr > 180:
-                        mapped_hr = 180
-                    mapped_hr_class = mapped_hr
-                    mapped_hrs_chunks.append([mapped_hr_class] * configs['clip_length'])
-                save_chunks(np.asarray(mapped_hrs_chunks), save_path + f'/{participant}_label_classhr', chunk_idx)
             chunk_idx += len(label_chunks)
 
+        # Check that number of video and biosignal chunks match
         if signal in ['ppg_nose']:
             if (len(glob.glob1(save_path, f"{participant}_input_et*")) !=
                     len(glob.glob1(save_path, f"{participant}_label_{signal}*"))):
@@ -189,7 +164,7 @@ def main():
                     '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025']
     do_video = True
     do_timesignal = True
-    use_mp = True  # use multiprocessing, consider memory consumption
+    use_mp = True  # use multiprocessing
 
     # Load configuration files
     cfg_path = f'../configs/preprocessing/config_preprocessing_egoppg.yml'

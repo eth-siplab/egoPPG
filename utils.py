@@ -1,28 +1,37 @@
+import matplotlib.pyplot as plt
+import neurokit2 as nk
 import numpy as np
 import yaml
+
+from preprocessing.preprocessing_helper import get_egoexo4d_takes
 
 from scipy.interpolate import CubicSpline
 
 
-def get_participants_list(dataset_name):
-    if dataset_name == 'ubfc_rppg':
-        participants = ['1', '3', '4', '5', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '20',
-                        '22', '23', '24', '25', '26', '27', '30', '31', '32', '33', '34', '35', '36', '37', '38',
-                        '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49']
-        participants = ['subject' + participant for participant in participants]
-    elif dataset_name == 'pure':
-        participants = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
-    elif dataset_name == 'mmpd':
-        participants = ['1', '2', '3', '4', '5', '6', '7', '10', '11', '12', '13', '14', '15', '16', '17', '18',
-                        '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33']
-        participants = ['subject' + participant for participant in participants]
-    elif dataset_name == 'egoppg':
+def get_participants_list(label_signals, dataset_name):
+    if dataset_name == 'egoppg':
         participants = ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013',
                         '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025']
+    elif dataset_name == 'egoexo4d':
+        with open('./configs/preprocessing/config_preprocessing_egoexo4d.yml', 'r') as yamlfile:
+            configs_pre = yaml.load(yamlfile, Loader=yaml.FullLoader)
+        participants = get_egoexo4d_takes(configs_pre['exclusion_list'])
+        participants = [take['video_paths']['ego'].split('/')[1] for take in participants]
     else:
         print('Dataset has not been implemented yet!')
         raise RuntimeError
     return participants
+
+
+def get_participants_lists(configs):
+    if configs.TRAIN.DATA.DATASET == configs.TEST.DATA.DATASET:
+        participants_train_valid = get_participants_list(configs.LABEL_SIGNALS, configs.TRAIN.DATA.DATASET)
+        participants_test = None
+    else:
+        participants_train_valid = get_participants_list(configs.LABEL_SIGNALS, configs.TRAIN.DATA.DATASET)
+        participants_test = get_participants_list(configs.LABEL_SIGNALS, configs.TEST.DATA.DATASET)
+
+    return participants_train_valid, participants_test
 
 
 def quantile_artifact_removal(data, q1, q3, factor):
@@ -56,11 +65,10 @@ def quantile_artifact_removal_multi(data, q1, q3, factor):
     return data
 
 
-def get_adjusted_task_times(task_times, chunk_length):
+def get_adjusted_task_times(task_times):
     task_times = {task: [int(task_times[task][0] - task_times['video'][0]),
                          int(task_times[task][1] - task_times['video'][0])]
                   for task in task_times.keys()}
-    task_times['running'][1] = (task_times['running'][1] // chunk_length) * chunk_length
     return task_times
 
 
@@ -68,8 +76,7 @@ def get_task_chunk_list(config, participant):
     cfg_path = f'./configs/preprocessing/config_preprocessing_{config.TRAIN.DATA.DATASET}.yml'
     with open(cfg_path, 'r') as yamlfile:
         configs_pre = yaml.load(yamlfile, Loader=yaml.FullLoader)
-    task_times_adjusted = get_adjusted_task_times(configs_pre['task_times'][participant],
-                                                  config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH)
+    task_times_adjusted = get_adjusted_task_times(configs_pre['task_times'][participant])
 
     task_chunk_list = {'task_names': [], 'keep': []}
     for task in task_times_adjusted.keys():
@@ -81,7 +88,7 @@ def get_task_chunk_list(config, participant):
             task_name = task
         task_chunk_list['task_names'].extend([task_name] * n_chunks)
 
-        if (task_name in config.TASKS_TO_USE) and (participant not in configs_pre['exclusion_list_l'][task_name]):
+        if (task_name in config.TASKS_TO_USE) and (participant not in configs_pre['exclusion_list'][task_name]):
             task_chunk_list['keep'].extend([1] * n_chunks)
         else:
             task_chunk_list['keep'].extend([0] * n_chunks)
@@ -148,3 +155,60 @@ def normalize(data, type_normalization):
         data = (data - np.min(data)) / (np.max(data) - np.min(data))
 
     return data
+
+
+def calculate_peaks(ppg_signal, fs):
+    ppg_signal = ppg_signal - min(ppg_signal)
+    ppg_signal = ppg_signal / max(ppg_signal)
+
+    # NK requires PPG signal to be inverted (have standard PPG form)
+    signals_sys, info_sys = nk.ppg_peaks(ppg_signal, sampling_rate=fs, method="elgendi", show=False)
+    peaks = info_sys["PPG_Peaks"]
+
+    plot_signals = False
+    if plot_signals:
+        fig, ax = plt.subplots()
+        ax.plot(ppg_signal)
+        y_peaks = np.asarray([ppg_signal[i] for i in peaks])
+        ax.scatter(peaks, y_peaks, color='green')
+        fig.show()
+
+    return peaks
+
+
+def calculate_peak_hr(ppg_signal, fs, reject_outliers=True, prev_hr=None):
+    ppg_signal = ppg_signal - min(ppg_signal)
+    ppg_signal = ppg_signal / max(ppg_signal)
+
+    # NK requires PPG signal to be inverted (have standard PPG form)
+    signals_sys, info_sys = nk.ppg_peaks(ppg_signal, sampling_rate=fs, method="elgendi", show=False)
+    peaks = info_sys["PPG_Peaks"]
+    # peaks = get_simple_footpoints(ppg_signal, peaks, 'Min', fs)
+
+    plot_signals = False
+    if plot_signals:
+        fig, ax = plt.subplots()
+        ax.plot(ppg_signal)
+        y_peaks = np.asarray([ppg_signal[i] for i in peaks])
+        ax.scatter(peaks, y_peaks, color='green')
+        fig.show()
+
+    ibis = calculate_ibis(peaks, fs, 1.5, reject_outliers=reject_outliers)
+    peaks_hr = 60 / (np.mean(ibis) / fs)
+
+    return peaks_hr
+
+
+def calculate_ibis(peaks, fs, threshold, reject_outliers=False):
+    ibis = np.diff(peaks)
+
+    # Only keep IBIs that are within the interquartile range
+    if reject_outliers:
+        ibis = ibis[np.where(ibis < (threshold * fs))]
+        if len(ibis) == 0:
+            return ibis
+        quantile_q1 = np.quantile(ibis, 0.25)
+        quantile_q3 = np.quantile(ibis, 0.75)
+        ibis = ibis[np.where((ibis >= quantile_q1) & (ibis <= quantile_q3))]
+
+    return ibis

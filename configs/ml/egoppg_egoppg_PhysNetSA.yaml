@@ -1,14 +1,14 @@
 BASE: ['']
 TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
 INPUT_SIGNALS: ['et']  # can be one or multiple depending on model
-LABEL_SIGNALS: ["ppg_nose"]  # can be one or multiple depending on model
+LABEL_SIGNALS: ["ppg_nose"]  # ppg_nose, ppg_ear, sys, dia, hr: can be one or multiple depending on model
 TASKS_TO_USE: ['video', 'office', 'kitchen', 'dancing', 'bike', 'walking']
 LABEL_VALID: 0  # index of which label of LABEL_SIGNALS to use for validation
 NAME_EXTENSION: "newcut"  # optional, just to add some extra information to the name
 # 10% of training data is used for validation per default. Change in ml_helper.py if needed
 SPLIT_METHOD: "kfold"  # loso, kfold or cross_dataset (train and valid on one dataset, test on another)
 K_FOLD_SPLITS: 5  # if k_fold is used, specify number of splits for k_fold
-DEVICE: cuda:5
+DEVICE: cuda:3
 NUM_OF_GPU_TRAIN: 1
 
 TRAIN:
@@ -23,7 +23,7 @@ TRAIN:
     CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestCut"  # where the preprocessed data is saved, relative to the DATA_PATH
     PREPROCESS:
       DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
-      LABEL_TYPE: "DiffStandardized"   # Raw, Standardized, Diff, DiffStandardized
+      LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized
       CHUNK_LENGTH: 128
       DOWNSAMPLE: 1
       UPSAMPLE: 1
@@ -40,7 +40,7 @@ TEST:
     CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestCut"  # where the preprocessed data is saved, relative to the DATA_PATH
     PREPROCESS:
       DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
-      LABEL_TYPE: "DiffStandardized"   # Raw, Standardized, Diff, DiffStandardized
+      LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized
       CHUNK_LENGTH: 128
       DOWNSAMPLE: 1
       UPSAMPLE: 1
@@ -54,7 +54,7 @@ LOG:
   PATH_TRAINING: "/Projects/egoPPG/runs/training"  # where the training logs are saved, relative to the FILE_PATH
   PATH_TESTING: "/Projects/egoPPG/runs/testing"    # where the testing logs are saved, relative to the FILE_PATH
 MODEL:
-  NAME: PhysNet
+  NAME: PhysNetSA
   PATH_MODEL: '/Projects/egoPPG/PreTrainedModels'  # where the pre-trained models are saved, relative to the DATA_PATH
 INFERENCE:
   USE_BEST_EPOCH: True

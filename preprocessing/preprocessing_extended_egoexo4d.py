@@ -8,9 +8,9 @@ import pandas as pd
 import yaml
 
 from preprocessing_helper import chunk_data, save_chunks, get_egoexo4d_takes
-from preprocessing_extended_helper import diff_standardize_extended_video, diff_standardize_video, diff_video
-from preprocessing_extended_helper import diff_standardize_label, diff_label, standardize_label, standardize_video
-from source.utils import upsample_video
+from preprocessing_helper import diff_standardize_extended_video, diff_standardize_video, diff_video
+from preprocessing_helper import diff_standardize_label, diff_label, standardize_label, standardize_video
+from utils import upsample_video, resample_signal
 
 from functools import partial
 from multiprocessing import Pool
@@ -73,15 +73,46 @@ def preprocess_videos(configs, take, data_path, save_path):
         raise ValueError(f'No video files found for take {take_name}!')
 
 
-def mp_preprocessing_extended(take, configs, data_path, save_path, do_video):
+def preprocess_timeseries(configs, take, data_path, save_path):
+    take_name = take['video_paths']['ego'].split('/')[1]
+    data = np.load(data_path + f'/{take_name}_input_imu.npy')
+
+    # Interpolate between samples if upsampling is used
+    if configs['upsampling'] > 1:
+        data = resample_signal(data, data.shape[0] * configs['upsampling'] - 2, 'linear')
+
+        for i in range(data.shape[1]):
+            if configs["label_type"] == "Raw":
+                data[:, i] = data[:, i]
+            elif configs["label_type"] == "Diff":
+                data[:, i] = diff_label(data[:, i])
+            elif configs["label_type"] == "DiffStandardized":
+                data[:, i] = diff_standardize_label(data[:, i])
+            elif configs["label_type"] == "Standardized":
+                data[:, i] = standardize_label(data[:, i])
+            else:
+                os.rmdir(save_path)
+                raise ValueError("Unsupported label type for EDA!")
+
+        # Take magnitude of IMU data
+        data = np.sqrt(np.sum(np.square(np.vstack((data[:, 0], data[:, 1], data[:, 2]))), axis=0))
+
+        # Chunk, check that number of files are the same as for video, and save
+        data_chunks = chunk_data(data, configs['clip_length_new'])
+        save_chunks(data_chunks, save_path + f'/{take_name}_input_2imu_right', 0)
+
+def mp_preprocessing_extended(take, configs, data_path, save_path, do_video, do_timeseries):
     if do_video:
         preprocess_videos(configs, take, data_path, save_path)
+    if do_timeseries:
+        preprocess_timeseries(configs, take, data_path, save_path)
     print(f'Finished take {take["video_paths"]["ego"].split("/")[1]}\n')
 
 
 def main():
     use_mp = True
-    do_video = True
+    do_video = False
+    do_timeseries = True
 
     # Load configuration files
     with open('./configs/preprocessing/config_preprocessing_extended_egoexo4d.yml', 'r') as yamlfile:
@@ -118,11 +149,11 @@ def main():
         print('Using multiprocessing for data processing!')
         p = Pool(processes=100)
         prod_x = partial(mp_preprocessing_extended, configs=configs, data_path=data_path, save_path=save_path,
-                         do_video=do_video)
+                         do_video=do_video, do_timeseries=do_timeseries)
         p.map(prod_x, takes)
     else:
         for take in takes:
-            mp_preprocessing_extended(take, configs, data_path, save_path, do_video)
+            mp_preprocessing_extended(take, configs, data_path, save_path, do_video, do_timeseries)
 
 
 if __name__ == "__main__":

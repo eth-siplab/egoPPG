@@ -3,12 +3,12 @@ import numpy as np
 import torch
 import torch.optim as optim
 
-from ml.models.PhysNet import PhysNet
+from ml.models.PhysNetSA import PhysNetSA
 from ml.trainer.BaseTrainer import BaseTrainer
 from tqdm import tqdm
 
 
-class PhysNetTrainer(BaseTrainer):
+class PhysNetSATrainer(BaseTrainer):
     def __init__(self, config, data_loader, trainer_params):
         """Inits parameters from args and the writer for TensorboardX."""
         super().__init__()
@@ -24,8 +24,9 @@ class PhysNetTrainer(BaseTrainer):
         self.log_training_dir = trainer_params['log_training_dir']
         self.log_testing_dir = trainer_params['log_testing_dir']
         self.test_metrics = trainer_params['test_metrics']
+        self.no_labels = config.INFERENCE.NO_LABELS
         device_ids_list = list(range(int(config.DEVICE[-1]), int(config.DEVICE[-1]) + config.NUM_OF_GPU_TRAIN))
-        self.model = PhysNet(frames=config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH).to(self.device)
+        self.model = PhysNetSA(frames=config.TRAIN.DATA.PREPROCESS.CHUNK_LENGTH, in_channels=1).to(self.device)
         if len(device_ids_list) > 1:
             self.model = torch.nn.DataParallel(self.model, device_ids=device_ids_list)
 
@@ -53,6 +54,7 @@ class PhysNetTrainer(BaseTrainer):
             print(f"====Training Epoch: {epoch}====")
             running_loss = 0.0
             train_loss = []
+
             self.model.train()
             tbar = tqdm(data_loader["train"], ncols=80)
             for idx, batch in enumerate(tbar):
@@ -124,9 +126,11 @@ class PhysNetTrainer(BaseTrainer):
                     vbar.set_description("Validation")
                     label = batch[1][0].to(self.device)
                     pred = self.model(batch[0][0].to(self.device))
+
                     if self.config.LABEL_SIGNALS[0] != 'classhr':
                         label = (label - torch.mean(label)) / torch.std(label)  # normalize
                         pred = (pred - torch.mean(pred)) / torch.std(pred)  # normalize
+
                     loss = self.loss_model(pred, label)
                     valid_loss.append(loss.item())
                     valid_step += 1
@@ -155,10 +159,15 @@ class PhysNetTrainer(BaseTrainer):
         self.model = self.model.to(self.config.DEVICE)
         self.model.eval()
         with torch.no_grad():
-            for _, batch in enumerate(data_loader['test']):
+            tbar = tqdm(data_loader["test"], ncols=80)
+            for _, batch in enumerate(tbar):
                 batch_size = batch[0][0].shape[0]
-                label = batch[1][0].to(self.config.DEVICE)
                 pred = self.model(batch[0][0].to(self.config.DEVICE))
+
+                if self.no_labels:
+                    label = pred
+                else:
+                    label = batch[1][0].to(self.config.DEVICE)
 
                 for idx in range(batch_size):
                     subj_index = batch[2][idx]

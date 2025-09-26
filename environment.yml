@@ -1,4 +1,4 @@
-name: egocentric_vision
+name: egoPPG
 channels:
   - defaults
 dependencies:

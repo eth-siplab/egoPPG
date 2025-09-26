@@ -1,8 +1,7 @@
 import glob
 import numpy as np
-import yaml
 
-from source.utils import get_adjusted_task_times, get_task_chunk_list
+from utils import get_task_chunk_list
 
 from functools import partial
 from multiprocessing import Pool
@@ -52,8 +51,8 @@ def get_input_paths(participant, data_path, config):
 
 def get_split_files(config, participants, data_path, random_seed, cross_dataset=False):
     input_file_names = {}
-    """use_mp = True
-    if use_mp:
+    use_mp = True
+    """if use_mp:
         print('Using multiprocessing for data processing!')
         p = Pool(processes=50)
         prod_x = partial(get_input_paths, data_path=data_path, config=config)
@@ -72,6 +71,7 @@ def get_split_files(config, participants, data_path, random_seed, cross_dataset=
         inputs_part = sorted(inputs_part, key=take_last_ele)
         if len(config.TASKS_TO_USE) > 0:
             task_chunk_list = get_task_chunk_list(config, participant)
+            # inputs_part = inputs_part[:len(task_chunk_list['task_names'])]
             inputs_part = [inputs_part[i] for i in range(len(inputs_part)) if task_chunk_list['keep'][i] == 1]
         inputs_part = [data_path + '/' + input_file for input_file in inputs_part]
         input_file_names[participant] = inputs_part
@@ -114,15 +114,15 @@ def get_split_files(config, participants, data_path, random_seed, cross_dataset=
     return split_files['train'], split_files['valid'], split_files['test']
 
 
-def get_cv_split_files(config, participants, takes, random_seed):
+def get_cv_split_files(config, participants_train_valid, participants_test, random_seed):
     cv_split_files = {}
     if config.TRAIN.DATA.DATASET == config.TEST.DATA.DATASET:
         cv_split_files['train'], cv_split_files['valid'], cv_split_files['test'] = (
-            get_split_files(config, participants, config.TRAIN.DATA.CACHED_PATH, random_seed))
+            get_split_files(config, participants_train_valid, config.TRAIN.DATA.CACHED_PATH, random_seed))
     else:
         cv_split_files['train'], cv_split_files['valid'], _ = (
-            get_split_files(config, participants, config.TRAIN.DATA.CACHED_PATH, random_seed, cross_dataset=True))
+            get_split_files(config, participants_train_valid, config.TRAIN.DATA.CACHED_PATH, random_seed, cross_dataset=True))
         _, _, cv_split_files['test'] = (
-            get_split_files(config, takes, config.TEST.DATA.CACHED_PATH, random_seed, cross_dataset=True))
+            get_split_files(config, participants_test, config.TEST.DATA.CACHED_PATH, random_seed, cross_dataset=True))
 
     return cv_split_files

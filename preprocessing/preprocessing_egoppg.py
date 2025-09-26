@@ -7,9 +7,9 @@ import os
 import pandas as pd
 import yaml
 
-from preprocessing_helper import chunk_data, save_chunks
-from preprocessing_helper import diff_standardize_extended_video, diff_standardize_video, diff_video
-from preprocessing_helper import diff_standardize_label, diff_label, standardize_label, standardize_video
+from preprocessing.preprocessing_helper import chunk_data, save_chunks
+from preprocessing.preprocessing_helper import diff_standardize_extended_video, diff_standardize_video, diff_video
+from preprocessing.preprocessing_helper import diff_standardize_label, diff_label, standardize_label, standardize_video
 from utils import get_adjusted_task_times, resample_signal, upsample_video, calculate_peaks
 
 from functools import partial
@@ -192,7 +192,7 @@ def main():
     use_mp = True  # use multiprocessing, consider memory consumption
 
     # Load configuration files
-    cfg_path = f'../configs/preprocessing/config_preprocessing_egoppg.yml'
+    cfg_path = f'./configs/preprocessing/config_preprocessing_egoppg.yml'
     with open(cfg_path, 'r') as yamlfile:
         configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
 

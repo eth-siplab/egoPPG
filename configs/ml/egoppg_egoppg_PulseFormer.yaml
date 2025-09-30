@@ -4,7 +4,7 @@ INPUT_SIGNALS: ['et', 'imu_right']  # can be one or multiple depending on model
 LABEL_SIGNALS: ["ppg_nose"]  # can be one or multiple depending on model
 TASKS_TO_USE: ['video', 'office', 'kitchen', 'dancing', 'bike', 'walking']
 LABEL_VALID: 0  # index of which label of LABEL_SIGNALS to use for validation
-NAME_EXTENSION: "newcut"  # optional, just to add some extra information to the name
+NAME_EXTENSION: "berkensynchglobal"  # optional, just to add some extra information to the name
 # 10% of training data is used for validation per default. Change in ml_helper.py if needed
 SPLIT_METHOD: "kfold"  # loso, kfold or cross_dataset (train and valid on one dataset, test on another)
 K_FOLD_SPLITS: 5  # if k_fold is used, specify number of splits for k_fold
@@ -20,7 +20,7 @@ TRAIN:
     FS: 30
     DATASET: egoppg  # egoppg
     DATA_FORMAT: NCDHW
-    CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestCut"  # where the preprocessed data is saved, relative to the DATA_PATH
+    CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestBerkenGlobal"  # where the preprocessed data is saved, relative to the DATA_PATH
     PREPROCESS:
       DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
       LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized
@@ -37,7 +37,7 @@ TEST:
     FS: 30
     DATASET: egoppg  # egoppg
     DATA_FORMAT: NCDHW
-    CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestCut"  # where the preprocessed data is saved, relative to the DATA_PATH
+    CACHED_PATH: "/Datasets/PreprocessedData/egoPPGTestBerkenGlobal"  # where the preprocessed data is saved, relative to the DATA_PATH
     PREPROCESS:
       DATA_TYPE: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
       LABEL_TYPE: 'DiffStandardized'   # Raw, Standardized, Diff, DiffStandardized

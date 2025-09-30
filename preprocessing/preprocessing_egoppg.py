@@ -21,9 +21,9 @@ def preprocess_videos(configs, participant, save_path):
     frames = np.load(configs['original_data_path'] + f'/{participant}/{participant}_et.npy')
     frames = [cv2.resize(frames[i], (configs['w'], configs['h']), interpolation=cv2.INTER_AREA) for i in
               range(len(frames))]
-    N_chunks = len(frames) // configs['clip_length']
+    # N_chunks = len(frames) // configs['clip_length']
     frames = np.expand_dims(np.asarray(frames), axis=3)
-    frames = frames[:N_chunks * configs['clip_length'], :, :, :]  # remove first frames until first full chunk
+    # frames = frames[:N_chunks * configs['clip_length'], :, :, :]  # remove first frames until first full chunk
 
     task_times = get_adjusted_task_times(configs['task_times'][participant])
     chunk_idx = 0
@@ -187,6 +187,7 @@ def main():
     # Variable parameters
     participants = ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013',
                     '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025']
+    # participants = ['017']
     do_video = True
     do_timesignal = True
     use_mp = True  # use multiprocessing, consider memory consumption

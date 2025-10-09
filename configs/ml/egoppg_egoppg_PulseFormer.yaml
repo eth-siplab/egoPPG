@@ -4,11 +4,11 @@ INPUT_SIGNALS: ['et', 'imu_right']  # can be one or multiple depending on model
 LABEL_SIGNALS: ["ppg_nose"]  # can be one or multiple depending on model
 TASKS_TO_USE: ['video', 'office', 'kitchen', 'dancing', 'bike', 'walking']
 LABEL_VALID: 0  # index of which label of LABEL_SIGNALS to use for validation
-NAME_EXTENSION: ""  # optional, just to add some extra information to the name
+NAME_EXTENSION: "ALLSEEDS"  # optional, just to add some extra information to the name
 # 10% of training data is used for validation per default. Change in ml_helper.py if needed
 SPLIT_METHOD: "kfold"  # loso, kfold or cross_dataset (train and valid on one dataset, test on another)
 K_FOLD_SPLITS: 5  # if k_fold is used, specify number of splits for k_fold
-DEVICE: cuda:1
+DEVICE: cuda:3
 NUM_OF_GPU_TRAIN: 1
 
 TRAIN:

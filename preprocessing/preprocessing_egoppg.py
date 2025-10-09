@@ -21,9 +21,7 @@ def preprocess_videos(configs, participant, save_path):
     frames = np.load(configs['original_data_path'] + f'/{participant}/{participant}_et.npy')
     frames = [cv2.resize(frames[i], (configs['w'], configs['h']), interpolation=cv2.INTER_AREA) for i in
               range(len(frames))]
-    # N_chunks = len(frames) // configs['clip_length']
     frames = np.expand_dims(np.asarray(frames), axis=3)
-    # frames = frames[:N_chunks * configs['clip_length'], :, :, :]  # remove first frames until first full chunk
 
     task_times = get_adjusted_task_times(configs['task_times'][participant])
     chunk_idx = 0
@@ -224,4 +222,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

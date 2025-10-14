@@ -1,14 +1,18 @@
-# Configurations for general of video and bio-signals of egoPPG dataset
+# Configurations for video signals of EgoExo4D dataset
 
 # General parameters
-original_data_path: '/data/bjbraun/Datasets/OriginalData'
-preprocessed_data_path: '/data/bjbraun/Datasets/PreprocessedData/EgoExo4D'
-fs_all: {'et': 10, 'rgb': 30, 'aria_imu_left': 800, 'aria_imu_right': 1000}
+original_data_path: '/local/data/bjbraun/Datasets/OriginalData/EgoExo4D'
+preprocessed_data_path: '/local/data/bjbraun/Datasets/PreprocessedData/EgoExo4D'
+fs_all: {'et': 10, 'rgb': 30, 'aria_imu_right': 1000}
 
 # Preprocessing parameters for ML
 h: 48                       # Number of rows of the preprocessed frames
 w: 128                      # Number of columns of the preprocessed frames
-clip_length: 32
+clip_length: 128
+video_types: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
+label_type: 'DiffStandardized'  # Raw, Standardized, Diff, DiffStandardized
+downsampling: 1
+upsampling: 3
 
 exclusion_list: [
   'sfu_basketball_04_38', 'sfu_basketball_10_28', 'iiith_cooking_56_2', 'uniandes_dance_016_46',

@@ -1,5 +1,5 @@
 BASE: ['']
-TOOLBOX_MODE: "train_and_test"      # "train_and_test"  or "only_test"
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
 INPUT_SIGNALS: ['et', 'imu_right']  # can be one or multiple depending on model
 LABEL_SIGNALS: ["ppg_nose"]  # can be one or multiple depending on model
 TASKS_TO_USE: ['video', 'office', 'kitchen', 'dancing', 'bike', 'walking']

@@ -12,8 +12,8 @@ w: 128                      # Number of columns of the preprocessed frames
 clip_length: 128
 video_types: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
 label_type: 'DiffStandardized'  # Raw, Standardized, Diff, DiffStandardized
-downsampling: 1
-upsampling: 1
+downsampling: 3
+upsampling: 3
 
 # Exclusion list for some tasks if the ground truth PPG sensor on the nose had low quality
 # See supplementary material of the paper for details

@@ -31,3 +31,17 @@ ml config file: specify
 CACHED_PATH for TRAIN and TEST
 DATA_PATH: Explain
 FILE_PATH: explain
+
+# Proficiency estimation
+
+## Download
+Data has to be downloaded from official EgoExo4D repository: https://ego-exo4d-data.org/#intro 
+You need the annotations, VRS files (for IMU data), the ET videos and the POV videos (for the downstream proficiency estimation task).
+Alternatively, you can also run PulseFormer without the motion-informed temporal attention (MITA) module. Then, you do not need the VRS files (IMU data).
+To get the needed data, run the following commands with the Ego4D downloader:
+1) egoexo -o PATH_SAVE_FOLDER --parts take_vrs_noimagestream metadata annotations downscaled_takes/448
+
+
+3) egoexo -o PATH_SAVE_FOLDER --views ego --parts takes
+3) egoexo -o PATH_SAVE_FOLDER --views ego --parts downscaled_takes/448
+

@@ -79,7 +79,7 @@ def main():
 
     # Define random seeds to evaluate
     random_seeds = [0, 10, 100]
-    # random_seeds = [100]
+    # random_seeds = [0]
 
     # Define metrics and tasks to evaluate
     test_metrics = {'ppg_nose': ['MAE', 'RMSE', 'MAPE', 'Pearson'],

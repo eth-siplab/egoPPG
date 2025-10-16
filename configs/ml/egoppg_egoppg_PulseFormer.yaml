@@ -63,4 +63,4 @@ INFERENCE:
   EVALUATION_WINDOW:
     USE_SMALLER_WINDOW: True     # Change this if you'd like an evaluation window smaller than the test video length
     WINDOW_SIZE: 60               # In seconds
-  MODEL_PATH: "EpochXX.pth"  # TRAIN needs to be adjusted to where model was trained from which is inferred
+  MODEL_PATH: "EpochXXX.pth"  # TRAIN needs to be adjusted to where model was trained from which is inferred

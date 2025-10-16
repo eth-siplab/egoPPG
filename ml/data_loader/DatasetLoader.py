@@ -65,16 +65,6 @@ class DatasetLoader(Dataset):
         data_out = []
         if self.dataset_name == 'Train':
             transforms = v2.Compose([
-                # v2.RandomCrop(size=(self.h // 2, self.w // 2)),
-                # v2.Resize((self.h, self.w)),
-                # v2.RandomApply([v2.RandomCrop(size=(self.h // 2, self.w)),
-                #                 v2.Pad((0, self.h // 4)),], p=0.5),
-                # v2.RandomApply([v2.RandomCrop(size=(self.h, self.w // 2)),
-                #                 v2.Pad((self.w // 4, 0)), ], p=0.5),
-                # v2.RandomApply([v2.RandomCrop(size=(self.h // 2, self.w // 2)),
-                #                 v2.Resize((self.h, self.w)), ], p=0.5),
-                # v2.RandomCrop(size=(self.h, self.w // 2)),
-                # v2.Pad((self.w // 4, 0)),
                 v2.RandomHorizontalFlip(p=0.5),
                 v2.RandomVerticalFlip(p=0.5),
                 v2.RandomCrop(size=(self.h // 2, self.w)),
@@ -87,14 +77,8 @@ class DatasetLoader(Dataset):
             transforms = v2.Compose([
                 v2.ToDtype(torch.float32, scale=False),
             ])
-        # print(index)
         for i_input in range(len(self.inputs_list)):
-            # try:
             data_temp = torch.from_numpy(np.load(self.inputs_list[i_input][index]))
-            # except:
-            #     print('Error loading i_input:', i_input)
-            #     print('Error loading index:', index)
-            #     print('Error loading:', self.inputs_list[i_input][index])
             if self.input_signals[i_input] in ['face', 'hand', 'et']:
                 data_temp = transforms(data_temp)
                 if self.data_format == 'NDCHW':

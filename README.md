@@ -34,6 +34,10 @@ FILE_PATH: explain
 
 # Proficiency estimation
 
+create_split_files: script to create the split files for proficiency estimation task
+
+TODO: ADD NUMBER OF TAKES EXCLUDED (EXPECTED)
+
 ## Download
 Data has to be downloaded from official EgoExo4D repository: https://ego-exo4d-data.org/#intro 
 You need the annotations, VRS files (for IMU data), the ET videos and the POV videos (for the downstream proficiency estimation task).

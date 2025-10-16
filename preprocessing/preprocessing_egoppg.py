@@ -185,10 +185,10 @@ def main():
     # Variable parameters
     participants = ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013',
                     '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025']
-    # participants = ['017']
+    participants = ['005']
     do_video = True
     do_timesignal = True
-    use_mp = True  # use multiprocessing, consider memory consumption
+    use_mp = False  # use multiprocessing, consider memory consumption
 
     # Load configuration files
     cfg_path = f'./configs/preprocessing/config_preprocessing_egoppg.yml'

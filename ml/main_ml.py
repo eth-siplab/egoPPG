@@ -40,7 +40,11 @@ def seed_worker(worker_id):
 
 
 def train_and_test(config, data_loader_dict, trainer_params):
-    if config.MODEL.NAME == 'PhysNet':
+    if config.MODEL.NAME == 'FactorizePhys':
+        model_trainer = trainer.FactorizePhysTrainer.FactorizePhysTrainer(config, data_loader_dict, trainer_params)
+    elif config.MODEL.NAME == 'PhysFormer':
+        model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict, trainer_params)
+    elif config.MODEL.NAME == 'PhysNet':
         model_trainer = trainer.PhysNetTrainer.PhysNetTrainer(config, data_loader_dict, trainer_params)
     elif config.MODEL.NAME == 'PhysNetSA':
         model_trainer = trainer.PhysNetSATrainer.PhysNetSATrainer(config, data_loader_dict, trainer_params)
@@ -53,7 +57,11 @@ def train_and_test(config, data_loader_dict, trainer_params):
 
 
 def test(config, data_loader_dict, trainer_params):
-    if config.MODEL.NAME == 'PhysNet':
+    if config.MODEL.NAME == 'FactorizePhys':
+        model_trainer = trainer.FactorizePhysTrainer.FactorizePhysTrainer(config, data_loader_dict, trainer_params)
+    elif config.MODEL.NAME == 'PhysFormer':
+        model_trainer = trainer.PhysFormerTrainer.PhysFormerTrainer(config, data_loader_dict, trainer_params)
+    elif config.MODEL.NAME == 'PhysNet':
         model_trainer = trainer.PhysNetTrainer.PhysNetTrainer(config, data_loader_dict, trainer_params)
     elif config.MODEL.NAME == 'PhysNetSA':
         model_trainer = trainer.PhysNetSATrainer.PhysNetSATrainer(config, data_loader_dict, trainer_params)
@@ -79,7 +87,7 @@ def main():
 
     # Define random seeds to evaluate
     random_seeds = [0, 10, 100]
-    # random_seeds = [0]
+    # random_seeds = [100]
 
     # Define metrics and tasks to evaluate
     test_metrics = {'ppg_nose': ['MAE', 'RMSE', 'MAPE', 'Pearson'],

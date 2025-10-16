@@ -7,13 +7,13 @@ fs_all: {'et': 30, 'aria_imu_right': 1000, 'ms_ecg': 1024}
 tasks: ['video', 'office', 'kitchen', 'dancing', 'bike', 'walking']
 
 # Preprocessing parameters for ML
-h: 48                       # Number of rows of the preprocessed frames
-w: 128                      # Number of columns of the preprocessed frames
+h: 240                       # Number of rows of the preprocessed frames
+w: 640                      # Number of columns of the preprocessed frames
 clip_length: 128
-video_types: ['DiffStandardized']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
-label_type: 'DiffStandardized'  # Raw, Standardized, Diff, DiffStandardized
-downsampling: 3
-upsampling: 3
+video_types: ['Raw']  # Raw, Standardized, Diff, DiffStandardized, DiffStandardizedExtended
+label_type: 'Raw'  # Raw, Standardized, Diff, DiffStandardized
+downsampling: 1
+upsampling: 1
 
 # Exclusion list for some tasks if the ground truth PPG sensor on the nose had low quality
 # See supplementary material of the paper for details

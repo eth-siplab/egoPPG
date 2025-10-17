@@ -119,10 +119,10 @@ Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.2
 | **Model**                                                             | **MAE ↓** | **RMSE ↓** | **MAPE ↓** | **r ↑** |
 |-----------------------------------------------------------------------|:---------:|:-----------:|:-----------:|:--------:|
 | Baseline eyes                                                         | 14.60 | 18.18 | 18.37 | 0.20 |
-| FactorizePhys ([Joshi et al., 2024](https://arxiv.org/abs/2401.00000)) | 13.55 ± 1.13 | 16.64 ± 0.96 | 17.55 ± 1.52 | 0.67 ± 0.03 |
+| FactorizePhys ([Joshi et al., 2024](https://arxiv.org/abs/2411.01542)) | 13.55 ± 1.13 | 16.64 ± 0.96 | 17.55 ± 1.52 | 0.67 ± 0.03 |
 | Baseline skin                                                         | 12.40 | 15.54 | 15.29 | 0.50 |
-| PhysFormer ([Yu et al., 2022](https://arxiv.org/abs/2201.00000))      | 11.52 ± 0.45 | 15.53 ± 0.51 | 12.68 ± 0.54 | 0.64 ± 0.03 |
-| PhysNet ([Yu et al., 2019](https://arxiv.org/abs/1901.00000))         | 11.32 ± 0.43 | 14.61 ± 0.43 | 14.22 ± 0.52 | 0.69 ± 0.02 |
+| PhysFormer ([Yu et al., 2022](https://openaccess.thecvf.com/content/CVPR2022/html/Yu_PhysFormer_Facial_Video-Based_Physiological_Measurement_With_Temporal_Difference_Transformer_CVPR_2022_paper.html))      | 11.52 ± 0.45 | 15.53 ± 0.51 | 12.68 ± 0.54 | 0.64 ± 0.03 |
+| PhysNet ([Yu et al., 2019](https://arxiv.org/abs/1905.02419))         | 11.32 ± 0.43 | 14.61 ± 0.43 | 14.22 ± 0.52 | 0.69 ± 0.02 |
 | **PulseFormer w/o MITA (ours)**                                       | **9.68 ± 0.59** | **12.67 ± 0.61** | **12.06 ± 0.91** | **0.80 ± 0.01** |
 | :fire: **PulseFormer (ours)**                                         | **8.53 ± 0.62** | **11.64 ± 0.70** | **10.49 ± 0.74** | **0.82 ± 0.03** |
 > **Table:** Results for HR prediction from eye-tracking videos using different models (averaged across three random seeds).

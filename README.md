@@ -18,7 +18,7 @@ ___________
 To train and validate *PulseFormer*, we collected a dataset of 13+ hours of eye tracking videos from Project Aria and contact-based PPG signals as well as an electrocardiogram (ECG) for ground-truth HR values. 
 Similar to EgoExo4D, 25 participants performed diverse everyday activities such as office work, cooking, dancing, and exercising, which induced significant natural motion and HR variation (44–164 bpm).
 
-To download the *egoPPG-DB* dataset, which we recorded ourselves for training and evaluating egoPPG, please visit the following link: ![egoPPG-DB dataset](https://polybox.ethz.ch/index.php/s/JCRjk2TTzaMrfes). You will need to sign a Data Transfer and Use Agreement (DTUA) form to agree to our terms of use. Please note that only members of an institution (e.g., a PI or professor) can sign this DTUA. After you have signed the DTUA, you will receive a download link via email. The dataset is around 220GB in size. The dataset is only for non-commercial, academic research purposes.
+To download the *egoPPG-DB* dataset, which we recorded ourselves for training and evaluating egoPPG, please visit the following link: [egoPPG-DB dataset](https://polybox.ethz.ch/index.php/s/JCRjk2TTzaMrfes). You will need to sign a Data Transfer and Use Agreement (DTUA) form to agree to our terms of use. Please note that only members of an institution (e.g., a PI or professor) can sign this DTUA. After you have signed the DTUA, you will receive a download link via email. The dataset is around 220GB in size. The dataset is only for non-commercial, academic research purposes.
 
 ## :wrench: Setup
 ___________
@@ -39,7 +39,7 @@ The following three folders contain all code related to the egoPPG task of predi
 #### Downstream task: Proficiency estimation on EgoExo4D
 IMPORTANT: CODE STILL IN THE PROCESS OF BEING CLEANED UP AND DOCUMENTED. PLEASE BEAR WITH US.
 
-The *proficiency_estimation/* folder contains all code related to the downstream proficiency estimation task on EgoExo4D using the ![TimeSformer](https://github.com/facebookresearch/TimeSformer) architecture and the estimated HR values from the egoPPG task:
+The *proficiency_estimation/* folder contains all code related to the downstream proficiency estimation task on EgoExo4D using the [TimeSformer](https://github.com/facebookresearch/TimeSformer) architecture and the estimated HR values from the egoPPG task:
 
 
 ## Preprocessing for egoPPG task

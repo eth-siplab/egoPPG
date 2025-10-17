@@ -158,7 +158,7 @@ If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset usefu
 ```
 
 ## :performing_arts: egoEMOTION
-Make sure to also check out *egoEMOTION*, our work on emotion recognition from egocentric vision systems: [egoEMOTION](https://siplab.org/projects/egoEMOTION).
+Make sure to also check out [egoEMOTION](https://siplab.org/projects/egoEMOTION), our work on emotion recognition from egocentric vision systems.
 *egoEMOTION* includes over 50 hours of recordings from 43 participants doing emotion-elicitation tasks and naturalistic activities while self-reporting their affective state using the Circumplex Model and Mikels’ Wheel as well as their personality via the Big Five model. 
 Each session provides synchronized data from the Project Aria glasses, webcam videos filming the participants, nose PPG, and physiological baselines (ECG, EDA, and breathing rate) for reference.
 

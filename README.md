@@ -44,7 +44,7 @@ IMPORTANT: CODE STILL IN THE PROCESS OF BEING CLEANED UP AND DOCUMENTED. PLEASE 
 The *proficiency_estimation/* folder contains all code related to the downstream proficiency estimation task on EgoExo4D using the [TimeSformer](https://github.com/facebookresearch/TimeSformer) architecture and the estimated HR values from the egoPPG task:
 
 
-## Preprocessing for egoPPG task
+## :gear: Preprocessing for egoPPG
 
 Run all scripts from the root folder (egoPPG) due to relative imports.
 
@@ -53,11 +53,13 @@ Run all scripts from the root folder (egoPPG) due to relative imports.
 2. Run the preprocessing script using the config file *config_preprocessing_egoppg.yaml*:
 
 
-`python -m preprocessing.preprocessing_egoppg --cfg_path configs/preprocessing/config_preprocessing_egoppg.yaml`
+```
+python -m preprocessing.preprocessing_egoppg --cfg_path configs/preprocessing/config_preprocessing_egoppg.yaml
+```
 
 
 #### Preprocessing EgoExo4D
-To predict HR on EgoExo4D (for the egoPPG task), you will need to preprocess the EgoExo4D dataset first so that you can then run the inference of the models trained on egoPPG-DB.
+To predict HR on EgoExo4D (for the egoPPG task), you have to preprocess the EgoExo4D dataset first so that you can then run the inference with the models trained on egoPPG-DB.
 
 1. To preprocess the EgoExo4D dataset, update the *configs/preprocessing/config_preprocessing_egoexo4d.yaml* file according to your paths and desired preprocessing parameters (downsampling, upsampling, window size, etc.).
 2. Run the preprocessing script using the config file *config_preprocessing_egoexo4d.yaml*:
@@ -70,10 +72,10 @@ Important:
 - The eye tracking videos of the EgoExo4D dataset are originally recorded at only 10 fps, whereas the egoPPG-DB dataset is recorded at 30 fps. 
 - We found that upsampling the EgoExo4D eye-tracking videos to 30 fps using linear interpolation between frames during preprocessing improves the HR estimation performance. Therefore, we recommend the following settings when aiming to predict HR on EgoExo4D: 
   - *config_preprocessing_egoexo4d.yaml*: set upsampling factor to 3 (and downsampling factor to 1)
-  - *config_preprocessing_egoppg.yaml*: set downsampling factor to 3 and upsampling factor to 3. This first downsamples the egoPPG-DB data from 30 fps to 10 fps and then upsamples it back to 30 fps, matching exactly the preprocessing of the EgoExo4D data. This ensures a smaller domain gap between training and inference data when training on egoPPG-DB and inferring on EgoExo4D.
+  - *config_preprocessing_egoppg.yaml*: set downsampling factor to 3 and upsampling factor to 3. This first downsamples the egoPPG-DB data from 30 fps to 10 fps and then upsamples it back to 30 fps using linear interpolation, matching exactly the preprocessing of the EgoExo4D data. This ensures a smaller domain gap between training and inference data when training on egoPPG-DB and inferring on EgoExo4D.
     - Note: This data will be saved into a folder named Down1_*_Up3. 1 is the effective downsampling factor (downsampling//upsampling).
 
-## Training and inference of models for egoPPG task
+## :zap: Training and inference for egoPPG
 
 Run all scripts from the root folder (egoPPG) due to relative imports.
 
@@ -100,36 +102,40 @@ To add a new model, you need to create three new files and make changes in two o
 1) Create a new model file in *ml/models/*, e.g., *my_model.py*, which contains the architecture of your model. You can use existing model files as a template.
 2) Create a new trainer file in *ml/trainer/*, e.g., *my_model_trainer.py*, which contains the training and evaluation logic for your model. You can use existing trainer files as a template.
 3) Create a new config file in *configs/ml/*, e.g., *egoppg_egoppg_my_model.yaml*, which specifies the parameters for training and evaluating your model. Naming is usually in the format: *trainset_testset_model.yaml*.
-4) In *ml/trainer/__init__.py*, import your new trainer class.
+4) In *ml/trainer/\_\_init\_\_.py*, import your new trainer class.
 5) In *ml/main_ml.py*, add a new condition to instantiate your trainer class in BOTH the *train_and_test* and the *test* function.
 
-#### Preprocessing a new dataset
-To preprocess a new dataset, you need to create a new preprocessing script and a new config file:
+#### Using a new dataset
+To use a new dataset, you need to create a new preprocessing script and a new config file:
 1) Create a new preprocessing script in *preprocessing/*, e.g., *preprocessing_my_dataset.py*, which contains the logic to preprocess your dataset. You can use existing preprocessing scripts as a template.
 2) Create a new config file in *configs/preprocessing/*, e.g., *config_preprocessing_my_dataset.yaml*, which specifies the parameters for preprocessing your dataset. Naming is usually in the format: *config_preprocessing_my_dataset.yaml*.
+3) After the preprocessing is done, you can create new config files in *configs/ml/* to train and evaluate models on your new dataset.
 
 #### Other notes
-- The validation set size is set to 10% of the training set. Adjust in *ml_helper.py* if needed.
+- The validation set size is set to 10% of the training set. Adjust in *ml/ml_helper.py* if needed.
 
-## Proficiency estimation
-___________
-create_split_files: script to create the split files for proficiency estimation task
+## Results
+Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated performance of PulseFormer and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines. For our training and inference, we used one GeForce RTX 4090 GPU. The mean results and STD across three seeds are reported below:
+![Results](assets/results_multiple_seeds.png)
+*PulseFormer w/o MITA* refers to the model *PhysNetSA* in our repository here.
 
-TODO: ADD NUMBER OF TAKES EXCLUDED (EXPECTED)
+## Proficiency estimation on EgoExo4D
+IMPORTANT: CODE STILL IN THE PROCESS OF BEING CLEANED UP AND DOCUMENTED. PLEASE BEAR WITH US.
+To dos: 
+- Explain usage (training and inference)
+- Explain *create_split_files*: script to create the split files for proficiency estimation task
+- Show number of used/excluded takes
 
 #### Download EgoExo4D data
-Data has to be downloaded from official EgoExo4D repository: https://ego-exo4d-data.org/#intro 
+The EgoExo4D data has to be downloaded from the official EgoExo4D repository: https://ego-exo4d-data.org/#intro 
 You need the annotations, VRS files (for IMU data), the ET videos and the POV videos (for the downstream proficiency estimation task).
 Alternatively, you can also run PulseFormer without the motion-informed temporal attention (MITA) module. Then, you do not need the VRS files (IMU data).
-To get the needed data, run the following commands with the Ego4D downloader:
-1) egoexo -o PATH_SAVE_FOLDER --parts take_vrs_noimagestream metadata annotations downscaled_takes/448
-
-
-3) egoexo -o PATH_SAVE_FOLDER --views ego --parts takes
-3) egoexo -o PATH_SAVE_FOLDER --views ego --parts downscaled_takes/448
+To get the data needed for the proficiency estimation, run the following commands with the Ego4D downloader:
+```
+egoexo -o PATH_SAVE_FOLDER --parts take_vrs_noimagestream metadata annotations downscaled_takes/448
+```
 
 ## :scroll: Citation
-___________
 If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset useful for your research, please cite our work.
 
 ```
@@ -141,7 +147,6 @@ If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset usefu
 }
 ```
 
-## Disclaimer
-___________
+## :page_facing_up: Disclaimer
 The structure of the code in this repository is strongly inspired by the [rPPG-Toolbox](https://github.com/ubicomplab/rPPG-Toolbox/tree/main). Make sure to also check it out for other rPPG methods and datasets!
 

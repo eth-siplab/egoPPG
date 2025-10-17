@@ -8,7 +8,7 @@
 
 ## :wave: egoPPG
 
-egoPPG is a novel vision task for egocentric systems to recover a person’s cardiac activity to aid downstream vision tasks.
+*egoPPG* is a novel vision task for egocentric systems to recover a person’s cardiac activity to aid downstream vision tasks.
 Our method, *PulseFormer* continuously estimates the person’s photoplethysmogram (PPG) from areas around the eyes and fuses motion cues from the headset’s inertial measurement unit to track HR values. 
 We demonstrate egoPPG’s downstream benefit for a key task on EgoExo4D, an existing egocentric dataset for which we find PulseFormer’s estimates of HR to improve proficiency estimation by 14%.
 ![Overview](assets/teaser.png)

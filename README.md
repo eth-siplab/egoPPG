@@ -39,8 +39,7 @@ The following three folders contain all code related to the egoPPG task of predi
 - ml/: code to run ML experiments for HR estimation from eye-tracking videos from *egoPPG-DB* and EgoExo4D using different models
 
 #### Downstream task: Proficiency estimation on EgoExo4D
-IMPORTANT: CODE STILL IN THE PROCESS OF BEING CLEANED UP AND DOCUMENTED. PLEASE BEAR WITH US.
-
+Code will be up soon.
 The *proficiency_estimation/* folder contains all code related to the downstream proficiency estimation task on EgoExo4D using the [TimeSformer](https://github.com/facebookresearch/TimeSformer) architecture and the estimated HR values from the egoPPG task:
 
 
@@ -114,13 +113,24 @@ To use a new dataset, you need to create a new preprocessing script and a new co
 #### Other notes
 - The validation set size is set to 10% of the training set. Adjust in *ml/ml_helper.py* if needed.
 
-## Results
+## :bar_chart: Results for egoPPG
 Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated performance of PulseFormer and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines. For our training and inference, we used one GeForce RTX 4090 GPU. The mean results and STD across three seeds are reported below:
-![Results](assets/results_multiple_seeds.png)
+
+| **Model**                                                              | **MAE ↓** | **RMSE ↓** | **MAPE ↓** | **r ↑** |
+|------------------------------------------------------------------------|:---------:|:-----------:|:-----------:|:--------:|
+| Baseline eyes                                                          | 14.60 | 18.18 | 18.37 | 0.20 |
+| FactorizePhys ([Joshi et al., 2024](https://arxiv.org/abs/2401.00000)) | 13.55 ± 1.13 | 16.64 ± 0.96 | 17.55 ± 1.52 | 0.67 ± 0.03 |
+| Baseline skin                                                          | 12.40 | 15.54 | 15.29 | 0.50 |
+| PhysFormer ([Yu et al., 2022](https://arxiv.org/abs/2201.00000))       | 11.52 ± 0.45 | 15.53 ± 0.51 | 12.68 ± 0.54 | 0.64 ± 0.03 |
+| PhysNet ([Yu et al., 2019](https://arxiv.org/abs/1901.00000))          | 11.32 ± 0.43 | 14.61 ± 0.43 | 14.22 ± 0.52 | 0.69 ± 0.02 |
+| **Ours w/o MITA**                                                      | **9.68 ± 0.59** | **12.67 ± 0.61** | **12.06 ± 0.91** | **0.80 ± 0.01** |
+| :fire: **Ours (Full Model)**                                           | **8.53 ± 0.62** | **11.64 ± 0.70** | **10.49 ± 0.74** | **0.82 ± 0.03** |
+> **Table:** Results for HR prediction from eye-tracking videos using different models (averaged across three random seeds).
+
 *PulseFormer w/o MITA* refers to the model *PhysNetSA* in our repository here.
 
 ## Proficiency estimation on EgoExo4D
-IMPORTANT: CODE STILL IN THE PROCESS OF BEING CLEANED UP AND DOCUMENTED. PLEASE BEAR WITH US.
+Code will be up soon.
 To dos: 
 - Explain usage (training and inference)
 - Explain *create_split_files*: script to create the split files for proficiency estimation task

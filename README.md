@@ -22,7 +22,7 @@ To download the *egoPPG-DB* dataset, which we recorded ourselves for training an
 
 ## :wrench: Setup
 ___________
-To use the environment we used for our paper, simply run: 
+To use the environmen we used for our paper, simply run: 
 ```
 conda env create -f environment.yml`
 conda activate egoPPG

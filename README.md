@@ -123,13 +123,13 @@ Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.2
 | Baseline skin                                                          | 12.40 | 15.54 | 15.29 | 0.50 |
 | PhysFormer ([Yu et al., 2022](https://arxiv.org/abs/2201.00000))       | 11.52 ± 0.45 | 15.53 ± 0.51 | 12.68 ± 0.54 | 0.64 ± 0.03 |
 | PhysNet ([Yu et al., 2019](https://arxiv.org/abs/1901.00000))          | 11.32 ± 0.43 | 14.61 ± 0.43 | 14.22 ± 0.52 | 0.69 ± 0.02 |
-| **Ours w/o MITA**                                                      | **9.68 ± 0.59** | **12.67 ± 0.61** | **12.06 ± 0.91** | **0.80 ± 0.01** |
-| :fire: **Ours (Full Model)**                                           | **8.53 ± 0.62** | **11.64 ± 0.70** | **10.49 ± 0.74** | **0.82 ± 0.03** |
+| **PulseFormer w/o MITA (ours)**                                        | **9.68 ± 0.59** | **12.67 ± 0.61** | **12.06 ± 0.91** | **0.80 ± 0.01** |
+| :fire: **PulseFormer (ours) **                                         | **8.53 ± 0.62** | **11.64 ± 0.70** | **10.49 ± 0.74** | **0.82 ± 0.03** |
 > **Table:** Results for HR prediction from eye-tracking videos using different models (averaged across three random seeds).
 
 *PulseFormer w/o MITA* refers to the model *PhysNetSA* in our repository here.
 
-## Proficiency estimation on EgoExo4D
+## :dart: Proficiency estimation on EgoExo4D
 Code will be up soon.
 To dos: 
 - Explain usage (training and inference)

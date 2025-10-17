@@ -1,35 +1,37 @@
 ## egoPPG: Heart Rate Estimation from Eye Tracking Cameras in Egocentric Systems to Benefit Downstream Vision Tasks (ICCV 2025)
 
-[Björn Braun](https://bjoernbraun.com/), [Rayan Armani](https://rayanarmani.github.io/), [Manuel Meier](https://github.com/meierman1), [Max Moebus](https://maxmoebus.com), [Christian Holz](https://www.christianholz.net)<br/>
+[Björn Braun](https://bjoernbraun.com/), Rayan Armani, [Manuel Meier](https://github.com/meierman1), [Max Moebus](https://maxmoebus.com), [Christian Holz](https://www.christianholz.net)<br/>
 
 [Sensing, Interaction & Perception Lab](https://siplab.org), Department of Computer Science, ETH Zürich, Switzerland <br/>
 
-___________
+
 
 ## :wave: egoPPG
-___________
+
 egoPPG is a novel vision task for egocentric systems to recover a person’s cardiac activity to aid downstream vision tasks.
 Our method, *PulseFormer* continuously estimates the person’s photoplethysmogram (PPG) from areas around the eyes and fuses motion cues from the headset’s inertial measurement unit to track HR values. 
 We demonstrate egoPPG’s downstream benefit for a key task on EgoExo4D, aexisting egocentric dataset for which we find PulseFormer’s estimates of HR to improve proficiency estimation by 14%.
 ![Overview](assets/teaser.png)
 
 ## :movie_camera: egoPPG-DB dataset
-___________
+
 To train and validate *PulseFormer*, we collected a dataset of 13+ hours of eye tracking videos from Project Aria and contact-based PPG signals as well as an electrocardiogram (ECG) for ground-truth HR values. 
 Similar to EgoExo4D, 25 participants performed diverse everyday activities such as office work, cooking, dancing, and exercising, which induced significant natural motion and HR variation (44–164 bpm).
 
-To download the *egoPPG-DB* dataset, which we recorded ourselves for training and evaluating egoPPG, please visit the following link: [egoPPG-DB dataset](https://polybox.ethz.ch/index.php/s/JCRjk2TTzaMrfes). You will need to sign a Data Transfer and Use Agreement (DTUA) form to agree to our terms of use. Please note that only members of an institution (e.g., a PI or professor) can sign this DTUA. After you have signed the DTUA, you will receive a download link via email. The dataset is around 220GB in size. The dataset is only for non-commercial, academic research purposes.
+To download the *egoPPG-DB* dataset, which we recorded ourselves for training and evaluating egoPPG, please visit the following link: [egoPPG-DB dataset](https://polybox.ethz.ch/index.php/s/JCRjk2TTzaMrfes). 
+
+You will need to sign a Data Transfer and Use Agreement (DTUA) form to agree to our terms of use. Please note that only members of an institution (e.g., a PI or professor) can sign this DTUA. After you have signed the DTUA, you will receive a download link via email. The dataset is around 220GB in size. The dataset is only for non-commercial, academic research purposes.
 
 ## :wrench: Setup
-___________
-To use the environmen we used for our paper, simply run: 
+
+To create the environment that we used for our paper, simply run: 
 ```
 conda env create -f environment.yml`
 conda activate egoPPG
 ```
 
 ## :file_folder: Code structure
-___________
+
 #### egoPPG task
 The following three folders contain all code related to the egoPPG task of predicting HR from eye-tracking videos on egoPPG-DB and EgoExo4D datasets:
 - configs/: contains all config files to run preprocessing and ML experiments
@@ -43,16 +45,16 @@ The *proficiency_estimation/* folder contains all code related to the downstream
 
 
 ## Preprocessing for egoPPG task
-___________
+
 Run all scripts from the root folder (egoPPG) due to relative imports.
 
 #### Preprocessing egoPPG-DB
 1. Adjust the config file in *configs/preprocessing/config_preprocessing_egoppg.yaml* according to your paths and desired preprocessing parameters (downsampling, upsampling, window size, etc.). 
 2. Run the preprocessing script using the config file *config_preprocessing_egoppg.yaml*:
 
-```
-python -m preprocessing.preprocessing_egoppg --cfg_path configs/preprocessing/config_preprocessing_egoppg.yaml
-```
+
+`python -m preprocessing.preprocessing_egoppg --cfg_path configs/preprocessing/config_preprocessing_egoppg.yaml`
+
 
 #### Preprocessing EgoExo4D
 To predict HR on EgoExo4D (for the egoPPG task), you will need to preprocess the EgoExo4D dataset first so that you can then run the inference of the models trained on egoPPG-DB.
@@ -72,7 +74,7 @@ Important:
     - Note: This data will be saved into a folder named Down1_*_Up3. 1 is the effective downsampling factor (downsampling//upsampling).
 
 ## Training and inference of models for egoPPG task
-___________
+
 Run all scripts from the root folder (egoPPG) due to relative imports.
 
 #### General instructions

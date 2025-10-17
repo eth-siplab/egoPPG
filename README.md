@@ -114,7 +114,7 @@ To use a new dataset, you need to create a new preprocessing script and a new co
 - The validation set size is set to 10% of the training set. Adjust in *ml/ml_helper.py* if needed.
 
 ## :bar_chart: Results for egoPPG
-Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated performance of PulseFormer and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines. For our training and inference, we used one GeForce RTX 4090 GPU. The mean results and STD across three seeds are reported below:
+Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated performance of *PulseFormer* and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines. For our training and inference, we used one GeForce RTX 4090 GPU. The mean results and STD across three seeds are reported below:
 
 | **Model**                                                              | **MAE ↓** | **RMSE ↓** | **MAPE ↓** | **r ↑** |
 |------------------------------------------------------------------------|:---------:|:-----------:|:-----------:|:--------:|
@@ -156,6 +156,11 @@ If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset usefu
   year={2025}
 }
 ```
+
+## :performing_arts: egoEMOTION
+Make sure to also check out *egoEMOTION*, our work on emotion recognition from egocentric vision systems: [egoEMOTION](https://siplab.org/projects/egoEMOTION).
+*egoEMOTION* includes over 50 hours of recordings from 43 participants doing emotion-elicitation tasks and naturalistic activities while self-reporting their affective state using the Circumplex Model and Mikels’ Wheel as well as their personality via the Big Five model. 
+Each session provides synchronized data from the Project Aria glasses, webcam videos filming the participants, nose PPG, and physiological baselines (ECG, EDA, and breathing rate) for reference.
 
 ## :page_facing_up: Disclaimer
 The structure of the code in this repository is strongly inspired by the [rPPG-Toolbox](https://github.com/ubicomplab/rPPG-Toolbox/tree/main). Make sure to also check it out for other rPPG methods and datasets!

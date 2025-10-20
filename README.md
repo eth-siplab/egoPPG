@@ -114,7 +114,36 @@ To use a new dataset, you need to create a new preprocessing script and a new co
 - The validation set size is set to 10% of the training set. Adjust in *ml/ml_helper.py* if needed.
 
 ## :bar_chart: Results for egoPPG
-Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated performance of *PulseFormer* and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines. For our training and inference, we used one GeForce RTX 4090 GPU. The mean results and STD across three seeds are reported below:
+For all training and inference, we used one GeForce RTX 4090 GPU.
+
+#### Seed 0
+The following table contains the results reported in our paper using only random seed 0.
+
+| **Model** | **MAE ↓** | **RMSE ↓** | **MAPE ↓** | **r ↑** |
+|------------|:---------:|:-----------:|:-----------:|:--------:|
+| Yue et al. [[Yue et al., 2023](https://ieeexplore.ieee.org/document/10193817)] | 29.63 | 32.99 | 37.86 | 0.10 |
+| DeepPhys [[Chen et al., 2018](https://openaccess.thecvf.com/content_ECCV_2018/html/Weixuan_Chen_DeepPhys_Video-Based_Physiological_ECCV_2018_paper.html)] | 28.26 | 31.97 | 36.68 | 0.08 |
+| TS-CAN [[Liu et al., 2020](https://proceedings.neurips.cc/paper_files/paper/2020/hash/e1228be46de6a0234ac22ded31417bc7-Abstract.html)] | 26.32 | 32.39 | 29.13 | 0.11 |
+| ContrastPhys+ [[Sun et al., 2024](https://ieeexplore.ieee.org/abstract/document/10440521)] | 19.12 | 24.13 | 22.57 | 0.21 |
+| RhythmMamba [[Zou et al., 2024](https://ojs.aaai.org/index.php/AAAI/article/view/33204)] | 15.05 | 19.78 | 17.46 | -0.16 |
+| Baseline eyes | 14.60 | 18.18 | 18.37 | 0.20 |
+| PhysMamba [[Yan et al., 2024](https://link.springer.com/chapter/10.1007/978-981-96-1071-6_23)] | 13.94 | 16.86 | 17.76 | 0.61 |
+| RhythmFormer [[Zou et al., 2024](https://www.sciencedirect.com/science/article/pii/S0031320325001712?casa_token=rflqjYE9sl8AAAAA:nr6dFJN1vqUaLGUvl96wLKipohNpYk1JE2gQOiXs6GlbFxzRKS0FjlSQie0Bj8gcxEITYc-7VA)] | 13.13 | 17.43 | 14.73 | 0.51 |
+| Baseline skin | 12.40 | 15.54 | 15.29 | 0.50 |
+| PhysNet [[Yu et al., 2019](https://arxiv.org/abs/1905.02419)] | 12.09 | 15.43 | 15.14 | 0.66 |
+| PhysFormer [[Yu et al., 2022](https://openaccess.thecvf.com/content/CVPR2022/html/Yu_PhysFormer_Facial_Video-Based_Physiological_Measurement_With_Temporal_Difference_Transformer_CVPR_2022_paper.html)] | 10.71 | 13.97 | 12.69 | 0.72 |
+| *PulseFormer w/o SA (ours)* | 10.49 | 13.62 | 12.83 | 0.73 |
+| FactorizePhys [[Joshi et al., 2024](https://arxiv.org/abs/2411.01542)] | 10.07 | 13.43 | 12.36 | 0.67 |
+| *PulseFormer w/o MITA (ours)* | 8.82 | 12.03 | 10.82 | 0.81 |
+| :fire: **PulseFormer (ours)** | **7.67** | **10.69** | **9.45** | **0.85** |
+
+> **Table:** Results for HR prediction from eye-tracking videos using different models (*ProjMethod*, *ProjMethod w/o SA*, *ProjMethod w/o MITA*, and established rPPG baselines*).
+
+*PulseFormer w/o MITA* refers to the model *PhysNetSA* in our repository here.
+
+
+#### Multiple seeds
+Additionally to the results reported in our [paper](https://arxiv.org/abs/2502.20879), we now also evaluated the performance of *PulseFormer* and some of the baselines across three seeds to get a better estimate of the performance and its variance across different seeds/machines.  The mean results and STD across three seeds are reported below:
 
 | **Model**                                                                                                                                                                                                | **MAE ↓** | **RMSE ↓** | **MAPE ↓** | **r ↑** |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:-----------:|:-----------:|:--------:|
@@ -157,7 +186,7 @@ If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset usefu
 }
 ```
 
-## :performing_arts: egoEMOTION
+## 👓🎭 egoEMOTION
 Make sure to also check out [egoEMOTION](https://github.com/eth-siplab/egoEMOTION), our work on emotion recognition from egocentric vision systems.
 *egoEMOTION* includes over 50 hours of recordings from 43 participants doing emotion-elicitation tasks and naturalistic activities while self-reporting their affective state using the Circumplex Model and Mikels’ Wheel as well as their personality via the Big Five model. 
 Each session provides synchronized data from the Project Aria glasses, videos of the participants' faces, nose PPG, and physiological baselines (ECG, EDA, and breathing rate) for reference.

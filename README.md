@@ -137,7 +137,7 @@ The following table contains the results reported in our paper using only random
 | *PulseFormer w/o MITA (ours)* | 8.82 | 12.03 | 10.82 | 0.81 |
 | :fire: **PulseFormer (ours)** | **7.67** | **10.69** | **9.45** | **0.85** |
 
-> **Table:** Results for HR prediction from eye-tracking videos using different models (*ProjMethod*, *ProjMethod w/o SA*, *ProjMethod w/o MITA*, and established rPPG baselines*).
+> **Table:** Results for HR prediction from eye-tracking videos using different models (*PulseFormer*, *PulseFormer w/o SA*, *PulseFormer w/o MITA*, and established rPPG baselines).
 
 *PulseFormer w/o MITA* refers to the model *PhysNetSA* in our repository here.
 

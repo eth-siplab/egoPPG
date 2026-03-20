@@ -141,10 +141,18 @@ def calculate_metrics_ppg(predictions, labels, config, signal_name, evaluation_f
                                       f'{config.TEST.DATA.DATASET}'):
                     os.makedirs(f'{config.LOG.PATH_PREDS}/predicted_hrs/{config.MODEL.NAME}/'
                                 f'{config.TEST.DATA.DATASET}')
+                if not os.path.exists(f'{config.LOG.PATH_PREDS}/predicted_rppgs/{config.MODEL.NAME}/'
+                                      f'{config.TEST.DATA.DATASET}'):
+                    os.makedirs(f'{config.LOG.PATH_PREDS}/predicted_rppgs/{config.MODEL.NAME}/'
+                                f'{config.TEST.DATA.DATASET}')
                 np.save(
                     f'{config.LOG.PATH_PREDS}/predicted_hrs/{config.MODEL.NAME}/{config.TEST.DATA.DATASET}/'
                     f'{participant}_hrs.npy',
                     np.asarray(resample_signal(pred_part_save, prediction.shape[0], 'linear')))
+                np.save(
+                    f'{config.LOG.PATH_PREDS}/predicted_rppgs/{config.MODEL.NAME}/{config.TEST.DATA.DATASET}/'
+                    f'{participant}_rppgs.npy',
+                    np.asarray(prediction))
             else:
                 raise ValueError("Unsupported signal name in testing!")
 

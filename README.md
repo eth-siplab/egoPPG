@@ -178,10 +178,11 @@ egoexo -o PATH_SAVE_FOLDER --parts take_vrs_noimagestream metadata annotations d
 If you find our [paper](https://arxiv.org/abs/2502.20879), code or dataset useful for your research, please cite our work.
 
 ```
-@article{braun2025egoppg,
+@inproceedings{braun2025egoppg,
   title={egoppg: Heart rate estimation from eye-tracking cameras in egocentric systems to benefit downstream vision tasks},
   author={Braun, Bj{\"o}rn and Armani, Rayan and Meier, Manuel and Moebus, Max and Holz, Christian},
-  journal={arXiv preprint arXiv:2502.20879},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={5579--5590},
   year={2025}
 }
 ```
